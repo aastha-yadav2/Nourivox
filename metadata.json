@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Nourivox - Your Health Companion",
+  "description": "A voice that nurtures your health with intelligent AI conversations about your wellbeing. This multilingual AI assistant provides health advice, image analysis, and appointment management.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
