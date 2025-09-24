@@ -36,6 +36,8 @@ const Header: React.FC = () => {
               <NavLink to="/vaccines" style={({ isActive }) => isActive ? activeLinkStyle : undefined} className="text-gray-300 hover:text-cyan-400 transition duration-150 ease-in-out">{t('vaccines')}</NavLink>
               <NavLink to="/pharmacy" style={({ isActive }) => isActive ? activeLinkStyle : undefined} className="text-gray-300 hover:text-cyan-400 transition duration-150 ease-in-out">{t('pharmacy')}</NavLink>
               <NavLink to="/schemes" style={({ isActive }) => isActive ? activeLinkStyle : undefined} className="text-gray-300 hover:text-cyan-400 transition duration-150 ease-in-out">{t('schemes')}</NavLink>
+              <NavLink to="/outbreaks" style={({ isActive }) => isActive ? activeLinkStyle : undefined} className="text-gray-300 hover:text-cyan-400 transition duration-150 ease-in-out">{t('outbreaks')}</NavLink>
+              <NavLink to="/helplines" style={({ isActive }) => isActive ? activeLinkStyle : undefined} className="text-gray-300 hover:text-cyan-400 transition duration-150 ease-in-out">{t('helplines')}</NavLink>
               {isAuthenticated && <NavLink to="/dashboard" style={({ isActive }) => isActive ? activeLinkStyle : undefined} className="text-gray-300 hover:text-cyan-400 transition duration-150 ease-in-out">{t('dashboard')}</NavLink>}
             </nav>
           </div>
@@ -80,6 +82,8 @@ const Header: React.FC = () => {
             <NavLink to="/vaccines" className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">{t('vaccines')}</NavLink>
             <NavLink to="/pharmacy" className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">{t('pharmacy')}</NavLink>
             <NavLink to="/schemes" className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">{t('schemes')}</NavLink>
+             <NavLink to="/outbreaks" className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">{t('outbreaks')}</NavLink>
+             <NavLink to="/helplines" className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">{t('helplines')}</NavLink>
             {isAuthenticated && <NavLink to="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">{t('dashboard')}</NavLink>}
             <div className="border-t border-gray-700 mt-2 pt-2">
                  {isAuthenticated ? (

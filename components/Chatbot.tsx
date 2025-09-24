@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { useAppContext } from '../hooks/useAppContext';
 import { languages, UserIcon, AiIcon, SendIcon, PaperClipIcon, MicrophoneIcon, SpeakerOnIcon, SpeakerOffIcon } from '../constants';
@@ -69,7 +69,16 @@ const Chatbot: React.FC = () => {
 
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
   
-  const systemInstruction = `You are a helpful and empathetic AI healthcare assistant. Your name is Nourivox. You provide general health guidance but are not a substitute for a professional doctor. If a user describes serious symptoms (e.g., chest pain, difficulty breathing, severe bleeding, loss of consciousness), you must strongly advise them to see a doctor immediately or visit the nearest emergency room. Always be supportive. Respond in the same language as the user's query. For image analysis, provide general observations and advise consulting a specialist (e.g., 'This appears to be a skin rash, it is best to consult a dermatologist for a proper diagnosis.'). Do not provide a medical diagnosis. For prescriptions, list the medicine names you can identify.`;
+  const systemInstruction = `You are a helpful and empathetic AI healthcare assistant named Nourivox.
+- Provide general health guidance, but explicitly state you are not a substitute for a professional doctor.
+- **CRITICAL:** If a user describes serious symptoms (e.g., chest pain, difficulty breathing, severe bleeding, loss of consciousness), you MUST strongly advise them to see a doctor immediately or visit the nearest emergency room.
+- Always be supportive and respond in the same language as the user's query.
+- **Image Analysis:** When an image is provided, follow this structure:
+    1.  Start with a brief, one-sentence summary of the image.
+    2.  Provide your observations in a bulleted list (using markdown like '* Point 1').
+    3.  Conclude with a clear recommendation to consult a specialist (e.g., 'For a proper diagnosis and treatment, it is essential to consult a dermatologist.').
+    4.  **DO NOT** provide a medical diagnosis under any circumstances.
+- **Prescription Analysis:** When analyzing a prescription image, identify and list the medicine names in a clear, bulleted list.`;
 
   // Map app language codes to BCP 47 tags for Speech API
   const langMap: Record<LanguageCode, string> = {
@@ -82,33 +91,7 @@ const Chatbot: React.FC = () => {
     gu: 'gu-IN',
   };
   
-  useEffect(() => {
-    // Function to populate voices
-    const populateVoiceList = () => {
-        if (typeof speechSynthesis === 'undefined') {
-            return;
-        }
-        const availableVoices = speechSynthesis.getVoices();
-        setVoices(availableVoices);
-    };
-
-    // Initial population
-    populateVoiceList();
-
-    // Repopulate when voices change (required for some browsers)
-    if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = populateVoiceList;
-    }
-    
-    // Cleanup speech on unmount
-    return () => {
-        if (typeof speechSynthesis !== 'undefined') {
-            speechSynthesis.cancel();
-        }
-    }
-  }, []);
-
-  const speakText = (text: string, langCode: LanguageCode) => {
+  const speakText = useCallback((text: string, langCode: LanguageCode) => {
     if (!isSpeechEnabled || typeof speechSynthesis === 'undefined' || voices.length === 0) return;
 
     speechSynthesis.cancel(); // Stop any previous speech
@@ -117,86 +100,37 @@ const Chatbot: React.FC = () => {
     utterance.lang = targetLang;
 
     // --- Voice Selection Logic ---
-    // Keywords to identify a "sweet girl voice"
     const femaleVoiceKeywords = ['female', 'girl', 'woman', 'kanya', 'zira', 'susan', 'samantha', 'femenino', 'femme', 'wanita'];
-
-    // Filter available voices for the target language
     const languageVoices = voices.filter(v => v.lang === targetLang || v.lang.startsWith(langCode));
-
-    let selectedVoice = null;
-
-    // 1. Prioritize a voice with a "female" keyword in its name
-    selectedVoice = languageVoices.find(v =>
-      femaleVoiceKeywords.some(keyword => v.name.toLowerCase().includes(keyword))
-    );
-
-    // 2. If no specific female voice is found, fall back to the first available voice for that language
+    let selectedVoice = languageVoices.find(v => femaleVoiceKeywords.some(keyword => v.name.toLowerCase().includes(keyword)));
     if (!selectedVoice && languageVoices.length > 0) {
       selectedVoice = languageVoices[0];
     }
-    
-    // 3. If a suitable voice was found, assign it.
     if (selectedVoice) {
       utterance.voice = selectedVoice;
     }
-    // If no voice is found for the language, the browser will use its default for the utterance's lang property.
     // --- End of Voice Selection Logic ---
     
     speechSynthesis.speak(utterance);
-  };
-
+  }, [isSpeechEnabled, voices, langMap]);
+  
+  useEffect(() => {
+    const populateVoiceList = () => {
+        if (typeof speechSynthesis === 'undefined') return;
+        setVoices(speechSynthesis.getVoices());
+    };
+    populateVoiceList();
+    if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
+    return () => {
+        if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+    }
+  }, []);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      console.warn("Speech recognition not supported in this browser.");
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = langMap[language];
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setInput(transcript);
-      setIsListening(false);
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
-      setIsListening(false);
-    };
-    
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognitionRef.current = recognition;
-
-    // Cleanup: stop recognition if component unmounts while listening
-    return () => {
-      recognition.stop();
-    };
-}, [language]);
-
-  const handleToggleListening = () => {
-    const recognition = recognitionRef.current;
-    if (!recognition) return;
-
-    if (isListening) {
-      recognition.stop();
-    } else {
-      setInput('');
-      recognition.start();
-    }
-    setIsListening(!isListening);
-  };
 
   const fileToGenerativePart = async (file: File) => {
     const base64EncodedDataPromise = new Promise<string>((resolve) => {
@@ -209,11 +143,16 @@ const Chatbot: React.FC = () => {
     };
   };
 
-  const handleSendMessage = async () => {
-    if ((!input.trim() && !imageFile) || isLoading) return;
+  const handleSendMessage = useCallback(async (textOverride?: string) => {
+    const messageText = textOverride ?? input;
+    const fileToSend = imageFile;
+
+    if ((!messageText.trim() && !fileToSend) || isLoading) {
+      return;
+    }
 
     setIsLoading(true);
-    const userMessage: Message = { sender: 'user', text: input, image: imagePreview || undefined };
+    const userMessage: Message = { sender: 'user', text: messageText, image: imagePreview || undefined };
     setMessages(prev => [...prev, userMessage]);
     
     setInput('');
@@ -222,11 +161,11 @@ const Chatbot: React.FC = () => {
     
     try {
       const model = ai.models;
-      const textPart = { text: input || 'Please analyze this image.' };
+      const textPart = { text: messageText || 'Please analyze this image.' };
       let requestParts;
 
-      if (imageFile) {
-        const imagePart = await fileToGenerativePart(imageFile);
+      if (fileToSend) {
+        const imagePart = await fileToGenerativePart(fileToSend);
         requestParts = [imagePart, textPart];
       } else {
         requestParts = [textPart];
@@ -258,7 +197,7 @@ const Chatbot: React.FC = () => {
       });
       
       let aiResponseText: string;
-      let detectedLang: LanguageCode = language; // Default to UI language
+      let detectedLang: LanguageCode = language;
 
       try {
         const jsonResponse = JSON.parse(response.text);
@@ -288,6 +227,53 @@ const Chatbot: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  }, [input, imageFile, imagePreview, isLoading, language, ai, systemInstruction, speakText]);
+
+
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      console.warn("Speech recognition not supported in this browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = langMap[language];
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      handleSendMessage(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+      setIsListening(false);
+    };
+    
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      recognition.stop();
+    };
+  }, [language, handleSendMessage, langMap]);
+
+  const handleToggleListening = () => {
+    const recognition = recognitionRef.current;
+    if (!recognition) return;
+
+    if (isListening) {
+      recognition.stop();
+    } else {
+      setInput('');
+      setIsListening(true);
+      recognition.start();
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -315,7 +301,7 @@ const Chatbot: React.FC = () => {
           <div key={index} className={`flex items-start gap-4 ${msg.sender === 'user' ? 'justify-end' : ''}`}>
             {msg.sender === 'ai' && <AiIcon />}
             <div className={`rounded-lg px-4 py-3 max-w-lg ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'}`}>
-              {msg.image && <img src={msg.image} alt="User upload" className="rounded-md mb-2 max-h-60" />}
+              {msg.image && <img src={msg.image} alt="User upload" className="rounded-lg mb-2 w-full object-cover max-h-80" />}
               <p className="whitespace-pre-wrap">{msg.text}</p>
             </div>
             {msg.sender === 'user' && <UserIcon />}
@@ -353,7 +339,7 @@ const Chatbot: React.FC = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            onKeyPress={(e) => e.key === 'Enter' ? handleSendMessage() : null}
             placeholder={isListening ? 'Listening...' : t('chatbot_placeholder')}
             className="flex-1 p-4 bg-transparent focus:outline-none text-gray-800"
             disabled={isLoading}
@@ -365,7 +351,7 @@ const Chatbot: React.FC = () => {
            <button onClick={handleToggleListening} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading}>
             <MicrophoneIcon isListening={isListening} />
           </button>
-          <button onClick={handleSendMessage} className="p-3 bg-teal-500 text-white rounded-full hover:bg-teal-600 disabled:bg-gray-300" disabled={isLoading || isListening}>
+          <button onClick={() => handleSendMessage()} className="p-3 bg-teal-500 text-white rounded-full hover:bg-teal-600 disabled:bg-gray-300" disabled={isLoading || (!input.trim() && !imageFile)}>
             <SendIcon />
           </button>
         </div>

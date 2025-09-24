@@ -19,6 +19,8 @@ export const translations: Translations = {
   vaccines: { en: 'Vaccines', hi: 'टीके', mr: 'लस', bn: 'টিকা', ta: 'தடுப்பூசிகள்', te: 'వ్యాక్సిన్లు', gu: 'રસીઓ' },
   pharmacy: { en: 'Pharmacy', hi: 'फार्मेसी', mr: 'फार्मसी', bn: 'ফার্মেসি', ta: 'மருந்தகம்', te: 'ఫార్మసీ', gu: 'ફાર્મસી' },
   schemes: { en: 'Schemes', hi: 'योजनाएं', mr: 'योजना', bn: 'স্কিম', ta: 'திட்டங்கள்', te: 'పథకాలు', gu: 'યોજનાઓ' },
+  outbreaks: { en: 'Outbreak Alerts', hi: 'प्रकोप अलर्ट', mr: 'प्रकोप सूचना', bn: 'প্রাদুর্ভাব সতর্কতা', ta: 'நோய் பரவல் எச்சரிக்கைகள்', te: 'వ్యాధి హెచ్చరికలు', gu: 'રોગચાળાની ચેતવણીઓ' },
+  helplines: { en: 'Helplines', hi: 'हेल्पलाइन', mr: 'हेल्पलाइन', bn: 'হেল্পলাইন', ta: 'உதவி எண்கள்', te: 'హెల్ప్‌లైన్‌లు', gu: 'હેલ્પલાઇન' },
   dashboard: { en: 'Dashboard', hi: 'डैशबोर्ड', mr: 'डॅशबोर्ड', bn: 'ড্যাশবোর্ড', ta: 'டாஷ்போர்டு', te: 'డాష్‌బోర్డ్', gu: 'ડેશબોર્ડ' },
   login: { en: 'Login', hi: 'लॉग इन', mr: 'लॉग इन', bn: 'লগইন', ta: 'உள்நுழை', te: 'లాగిన్', gu: 'લોગિન' },
   signup: { en: 'Sign Up', hi: 'साइन अप', mr: 'साइन अप', bn: 'নিবন্ধন করুন', ta: 'பதிவு செய்க', te: 'నమోదు చేయండి', gu: 'સાઇન અપ કરો' },
@@ -30,7 +32,7 @@ export const translations: Translations = {
   login_with_google: { en: 'Login with Google', hi: 'Google के साथ लॉगिन करें', mr: 'Google सह लॉगिन करा', bn: 'Google দিয়ে লগইন করুন', ta: 'Google உடன் உள்நுழையவும்', te: 'Googleతో లాగిన్ చేయండి', gu: 'Google સાથે લોગિન કરો' },
   signup_with_google: { en: 'Sign Up with Google', hi: 'Google के साथ साइन अप करें', mr: 'Google सह साइन अप करा', bn: 'Google দিয়ে সাইন আপ করুন', ta: 'Google உடன் பதிவு செய்யவும்', te: 'Googleతో సైన్ అప్ చేయండి', gu: 'Google સાથે સાઇન અપ કરો' },
   no_account: { en: "Don't have an account?", hi: 'खाता नहीं है?', mr: 'खाते नाही?', bn: 'অ্যাকাউন্ট নেই?', ta: 'கணக்கு இல்லையா?', te: 'ఖాతా లేదా?', gu: 'ખાતું નથી?' },
-  have_account: { en: 'Already have an account?', hi: 'पहले से ही एक खाता श्रेष्ठ?', mr: 'आधीपासूनच एक खाते आहे?', bn: 'ইতিমধ্যে একটি অ্যাকাউন্ট আছে?', ta: 'ஏற்கனவே கணக்கு உள்ளதா?', te: 'ఇప్పటికే ఖాతా ఉందా?', gu: 'પહેલેથી જ એકાઉન્ટ છે?' },
+  have_account: { en: 'Already have an account?', hi: 'पहले से ही एक खाता श्रेष्ठ?', mr: 'आधीपासूनच एक खाते आहे?', bn: 'ইতিমধ্যে একটি অ্যাকাউন্ট আছে?', ta: 'ஏற்கனவே கணக்கு உள்ளதா?', te: 'ఇప్పటికే ఖాతా ఉందా?', gu: 'પહેલેથી જ એકાન્ટ છે?' },
   create_account: { en: 'Create Your Account', hi: 'अपना खाता बनाएं', mr: 'तुमचे खाते तयार करा', bn: 'আপনার অ্যাকাউন্ট তৈরি করুন', ta: 'உங்கள் கணக்கை உருவாக்கவும்', te: 'మీ ఖాతాను సృష్టించండి', gu: 'તમારું એકાઉન્ટ બનાવો' },
   access_account: { en: 'Access Your Account', hi: 'अपने खाते तक पहुंचें', mr: 'तुमच्या खात्यात प्रवेश करा', bn: 'আপনার অ্যাকাউন্টে প্রবেশ করুন', ta: 'உங்கள் கணக்கை அணுகவும்', te: 'మీ ఖాతాను యాక్సెస్ చేయండి', gu: 'તમારા એકાઉન્ટને ઍક્સેસ કરો' },
   // Landing Page
@@ -42,7 +44,7 @@ export const translations: Translations = {
   // Features Section
   why_choose_title: { en: 'Why Choose Nourivox?', hi: 'नौरिवॉक्स क्यों चुनें?', mr: 'नौरिवॉक्स का निवडावे?', bn: 'কেন নুরিভক্স বেছে নেবেন?', ta: 'ஏன் நூரிவோக்ஸைத் தேர்ந்தெடுக்க வேண்டும்?', te: 'నౌరివాక్స్‌ను ఎందుకు ఎంచుకోవాలి?', gu: 'શા માટે નૌરીવોક્સ પસંદ કરો?' },
   why_choose_subtitle: { en: 'Advanced AI technology meets human expertise for comprehensive healthcare support', hi: 'उन्नत एआई तकनीक व्यापक स्वास्थ्य सेवा सहायता के लिए मानव विशेषज्ञता से मिलती है', mr: 'प्रगत AI तंत्रज्ञान सर्वसमावेशक आरोग्यसेवा समर्थनासाठी मानवी कौशल्याशी मिळते', bn: 'উন্নত এআই প্রযুক্তি ব্যাপক স্বাস্থ্যসেবা সহায়তার জন্য মানুষের দক্ষতার সাথে মিলিত হয়', ta: 'மேம்பட்ட AI தொழில்நுட்பம் விரிவான சுகாதார ஆதரவிற்காக மனித நிபுணத்துவத்தை சந்திக்கிறது', te: 'అధునాతన AI సాంకేతికత సమగ్ర ఆరోగ్య సంరక్షణ మద్దతు కోసం మానవ నైపుణ్యంతో కలుస్తుంది', gu: 'અદ્યતન AI ટેકનોલોજી વ્યાપક હેલ્થકેર સપોર્ટ માટે માનવ કુશળતાને પૂર્ણ કરે છે' },
-  feature_smart_ai_title: { en: 'Smart AI Chat', hi: 'स्मार्ट एआई चैट', mr: 'स्मार्ट एआय चॅट', bn: 'স্মার্ট এআই চ্যাট', ta: 'ஸ்மார்ட் AI அரட்டை', te: 'స్మార్ట్ AI చాట్', gu: 'સ્માર્ટ AI ચેટ' },
+  feature_smart_ai_title: { en: 'Smart AI Chat', hi: 'स्मार्ट एआई चैट', mr: 'स्मार्ट এआय चॅट', bn: 'স্মার্ট এআই চ্যাট', ta: 'ஸ்மார்ட் AI அரட்டை', te: 'స్మార్ట్ AI చాట్', gu: 'સ્માર્ટ AI ચેટ' },
   feature_smart_ai_desc: { en: 'Get instant responses to your health questions with our advanced AI trained on medical knowledge', hi: 'चिकित्सा ज्ञान पर प्रशिक्षित हमारे उन्नत एआई के साथ अपने स्वास्थ्य प्रश्नों के त्वरित उत्तर प्राप्त करें', mr: 'आमच्या वैद्यकीय ज्ञानावर प्रशिक्षित प्रगत AI सह तुमच्या आरोग्य प्रश्नांची त्वरित उत्तरे मिळवा', bn: 'চিকিৎসা জ্ঞানে প্রশিক্ষিত আমাদের উন্নত এআই দিয়ে আপনার স্বাস্থ্য প্রশ্নের তাত্ক্ষণিক প্রতিক্রিয়া পান', ta: 'மருத்துவ அறிவில் பயிற்சி பெற்ற எங்கள் மேம்பட்ட AI மூலம் உங்கள் சுகாதார கேள்விகளுக்கு உடனடி பதில்களைப் பெறுங்கள்', te: 'వైద్య పరిజ్ఞానంపై శిక్షణ పొందిన మా అధునాతన AIతో మీ ఆరోగ్య ప్రశ్నలకు తక్షణ ప్రతిస్పందనలను పొందండి', gu: 'તબીબી જ્ઞાન પર પ્રશિક્ષિત અમારા અદ્યતન AI સાથે તમારા સ્વાસ્થ્ય પ્રશ્નોના ત્વરિત જવાબો મેળવો' },
   feature_doctor_connect_title: { en: 'Doctor Connect', hi: 'डॉक्टर कनेक्ट', mr: 'डॉक्टर कनेक्ट', bn: 'ডাক্তার কানেক্ট', ta: 'டாக்டர் இணைப்பு', te: 'డాక్టర్ కనెక్ట్', gu: 'ડૉક્ટર કનેક્ટ' },
   feature_doctor_connect_desc: { en: 'Connect with licensed physicians for professional medical consultations when you need expert care', hi: 'जब आपको विशेषज्ञ देखभाल की आवश्यकता हो तो पेशेवर चिकित्सा परामर्श के लिए लाइसेंस प्राप्त चिकित्सकों से जुड़ें', mr: 'जेव्हा तुम्हाला तज्ञ काळजीची आवश्यकता असेल तेव्हा व्यावसायिक वैद्यकीय सल्ल्यासाठी परवानाधारक डॉक्टरांशी संपर्क साधा', bn: 'আপনার যখন বিশেষজ্ঞ যত্নের প্রয়োজন তখন পেশাদার চিকিৎসা পরামর্শের জন্য লাইসেন্সপ্রাপ্ত চিকিৎসকদের সাথে সংযোগ করুন', ta: 'உங்களுக்கு நிபுணர் பராமரிப்பு தேவைப்படும்போது தொழில்முறை மருத்துவ ஆலோசனைகளுக்கு உரிமம் பெற்ற மருத்துவர்களுடன் இணையுங்கள்', te: 'మీకు నిపుణుల సంరక్షణ అవసరమైనప్పుడు వృత్తిపరమైన వైద్య సంప్రదింపుల కోసం లైసెన్స్ పొందిన వైద్యులతో కనెక్ట్ అవ్వండి', gu: 'જ્યારે તમને નિષ્ણાત સંભાળની જરૂર હોય ત્યારે વ્યાવસાયિક તબીબી પરામર્શ માટે લાઇસન્સ પ્રાપ્ત ચિકિત્સકો સાથે જોડાઓ' },
@@ -72,13 +74,13 @@ export const translations: Translations = {
   about_scope_future_title: { en: 'Future Scope', hi: 'भविष्य का दायरा', mr: 'भविष्यातील व्याप्ती', bn: 'ভবিষ্যতের সুযোগ', ta: 'எதிர்கால நோக்கம்', te: 'భవిష్యత్ పరిధి', gu: 'ભવિષ્યનો અવકાશ' },
   about_scope_future_desc: { en: 'AI tools, teleconsultation, and personalized health guidance', hi: 'एआई उपकरण, टेलीконсуल्टेशन, और व्यक्तिगत स्वास्थ्य मार्गदर्शन', mr: 'एआय साधने, टेलिकन्सल्टेशन, आणि वैयक्तिकृत आरोग्य मार्गदर्शन', bn: 'এআই সরঞ্জাম, টেলিকনসালটেশন, এবং ব্যক্তিগতকৃত স্বাস্থ্য নির্দেশিকা', ta: 'AI கருவிகள், தொலை ஆலோசனை மற்றும் தனிப்பயனாக்கப்பட்ட சுகாதார வழிகாட்டுதல்', te: 'AI సాధనాలు, టెలికన్సల్టేషన్ మరియు వ్యక్తిగతీకరించిన ఆరోగ్య మార్గదర్శకత్వం', gu: 'AI સાધનો, ટેલિકન્સલ્ટેશન અને વ્યક્તિગત આરોગ્ય માર્ગદર્શન' },
   join_revolution_title: { en: 'Join Our Healthcare Revolution', hi: 'हमारी स्वास्थ्य सेवा क्रांति में शामिल हों', mr: 'आमच्या आरोग्यसेवा क्रांतीमध्ये सामील व्हा', bn: 'আমাদের স্বাস্থ্যসেবা বিপ্লবে যোগ দিন', ta: 'எங்கள் சுகாதாரப் புரட்சியில் சேரவும்', te: 'మా ఆరోగ్య సంరక్షణ విప్లవంలో చేరండి', gu: 'અમારી આરોગ્યસંભાળ ક્રાંતિમાં જોડાઓ' },
-  join_revolution_subtitle: { en: "Together, we're making healthcare knowledge accessible to everyone, everywhere.", hi: 'साथ मिलकर, हम स्वास्थ्य सेवा ज्ञान को सभी के लिए, हर जगह सुलभ बना रहे हैं।', mr: 'एकत्रितपणे, आम्ही आरोग्यसेवा ज्ञान प्रत्येकासाठी, सर्वत्र उपलब्ध करून देत आहोत.', bn: 'একসাথে, আমরা স্বাস্থ্যসেবা জ্ঞানকে সকলের জন্য, সর্বত্র সহজলভ্য করছি।', ta: 'ஒன்றாக, நாங்கள் சுகாதார அறிவை அனைவருக்கும், எல்லா இடங்களிலும் அணுகக்கூடியதாக மாற்றுகிறோம்.', te: 'కలిసి, మేము ఆరోగ్య సంరక్షణ పరిజ్ఞానాన్ని అందరికీ, ప్రతిచోటా అందుబాటులో ఉంచుతున్నాము.', gu: 'સાથે મળીને, અમે આરોગ્યસંભાળ જ્ઞાનને દરેક માટે, દરેક જગ્યાએ સુલભ બનાવી રહ્યા છીએ.' },
+  join_revolution_subtitle: { en: "Together, we're making healthcare knowledge accessible to everyone, everywhere.", hi: 'साथ मिलकर, हम स्वास्थ्य सेवा ज्ञान को सभी के लिए, हर जगह सुलभ बना रहे हैं।', mr: 'एकत्रितपणे, आम्ही आरोग्यसेवा ज्ञान प्रत्येकासाठी, सर्वत्र उपलब्ध करून देत आहोत.', bn: 'একসাথে, আমরা স্বাস্থ্যসেবা জ্ঞানকে সকলের জন্য, সর্বত্র সহজলভ্য করছি।', ta: 'ஒன்றாக, நாங்கள் சுகாதார அறிவை அனைவருக்கும், எல்லா இடങ്ങളിലും அணுகக்கூடியதாக மாற்றுகிறோம்.', te: 'కలిసి, మేము ఆరోగ్య సంరక్షణ పరిజ్ఞానాన్ని అందరికీ, ప్రతిచోటా అందుబాటులో ఉంచుతున్నాము.', gu: 'સાથે મળીને, અમે આરોગ્યસંભાળ જ્ઞાનને દરેક માટે, દરેક જગ્યાએ સુલભ બનાવી રહ્યા છીએ.' },
   // Chatbot
   chatbot_placeholder: { en: 'Ask a health question or upload an image...', hi: 'स्वास्थ्य प्रश्न पूछें या एक छवि अपलोड करें...', mr: 'आरोग्य प्रश्न विचारा किंवा एक प्रतिमा अपलोड करा...', bn: 'একটি স্বাস্থ্য প্রশ্ন জিজ্ঞাসা করুন বা একটি ছবি আপলোড করুন...', ta: 'சுகாதாரக் கேள்வியைக் கேட்கவும் அல்லது படத்தைப் பதிவேற்றவும்...', te: 'ఆరోగ్య ప్రశ్న అడగండి లేదా చిత్రాన్ని అప్‌లోడ్ చేయండి...', gu: 'આરોગ્ય પ્રશ્ન પૂછો અથવા છબી અપલોડ કરો...' },
   send: { en: 'Send', hi: 'भेजें', mr: 'पाठवा', bn: 'পাঠান', ta: 'அனுப்பு', te: 'పంపండి', gu: 'મોકલો' },
   upload_image: { en: 'Upload Image', hi: 'छवि अपलोड करें', mr: 'प्रतिमा अपलोड करा', bn: 'ছবি আপলোড করুন', ta: 'படத்தை பதிவேற்றவும்', te: 'చిత్రాన్ని అప్‌లోడ్ చేయండి', gu: 'છબી અપલોડ કરો' },
   // Dashboard
-  my_appointments: { en: 'My Appointments', hi: 'मेरी नियुक्तियाँ', mr: 'माझ्या भेटी', bn: 'আমার অ্যাপয়েন্টমেন্ট', ta: 'எனது சந்திப்புகள்', te: 'నా అపాయింట్‌మెంట్లు', gu: 'મારી નિમણૂંકો' },
+  my_appointments: { en: 'My Appointments', hi: 'मेरी नियुक्तियाँ', mr: 'माझ्या भेटी', bn: 'আমার অ্যাপয়েন্টমেন্ট', ta: 'எனது சந்திப்புகள்', te: 'నా అపాయింట్‌మెంట్లు', gu: 'મારી નિમણૂంકો' },
   book_appointment: { en: 'Book a new appointment', hi: 'एक नई नियुक्ति बुक करें', mr: 'नवीन भेट बुक करा', bn: 'একটি নতুন অ্যাপয়েন্টমেন্ট বুক করুন', ta: 'புதிய சந்திப்பை பதிவு செய்யுங்கள்', te: 'కొత్త అపాయింట్‌మెంట్ బుక్ చేయండి', gu: 'નવી એપોઇન્ટમેન્ટ બુક કરો' },
   doctor_name: { en: "Doctor's Name", hi: 'डॉक्टर का नाम', mr: 'डॉक्टरांचे नाव', bn: 'ডাক্তারের নাম', ta: 'மருத்துவர் பெயர்', te: 'డాక్టర్ పేరు', gu: 'ડૉક્ટરનું નામ' },
   date: { en: 'Date', hi: 'दिनांक', mr: 'तاريخ', bn: 'তারিখ', ta: 'தேதி', te: 'తేదీ', gu: 'તારીખ' },
@@ -106,7 +108,7 @@ export const translations: Translations = {
   email_address: { en: 'support@nourivox.ai', hi: 'support@nourivox.ai', mr: 'support@nourivox.ai', bn: 'support@nourivox.ai', ta: 'support@nourivox.ai', te: 'support@nourivox.ai', gu: 'support@nourivox.ai' },
   availability: { en: 'Available 24/7 Worldwide', hi: 'दुनिया भर में 24/7 उपलब्ध', mr: 'जगभरात २४/७ उपलब्ध', bn: 'বিশ্বব্যাপী ২৪/৭ উপলব্ধ', ta: 'உலகளவில் 24/7 கிடைக்கும்', te: 'ప్రపంచవ్యాప్తంగా 24/7 అందుబాటులో ఉంది', gu: 'વિશ્વભરમાં 24/7 ઉપલબ્ધ' },
   emergency_title: { en: 'Emergency?', hi: 'आपातकालीन?', mr: 'आणीबाणी?', bn: 'জরুরী?', ta: 'அவசர?', te: 'అత్యవసరమా?', gu: 'કટોકટી?' },
-  emergency_desc: { en: 'Call 911 or your local emergency number', hi: '911 या अपने स्थानीय आपातकालीन नंबर पर कॉल करें', mr: '९११ किंवा तुमच्या स्थानिक आपत्कालीन क्रमांकावर कॉल करा', bn: '৯১১ বা আপনার স্থানীয় জরুরি নম্বরে কল করুন', ta: '911 அல்லது உங்கள் உள்ளூர் அவசர எண்ணை அழைக்கவும்', te: '911 లేదా మీ స్థానిక అత్యవసర నంబర్‌కు కాల్ చేయండి', gu: '911 અથવા તમારા સ્થાનિક ઇમરજન્સી નંબર પર કૉલ કરો' },
+  emergency_desc: { en: 'Call 108 or your local emergency number', hi: '108 या अपने स्थानीय आपातकालीन नंबर पर कॉल करें', mr: '१०८ किंवा तुमच्या स्थानिक आपत्कालीन क्रमांकावर कॉल करा', bn: '১০৮ বা আপনার স্থানীয় জরুরি নম্বরে কল করুন', ta: '108 அல்லது உங்கள் உள்ளூர் அவசர எண்ணை அழைக்கவும்', te: '108 లేదా మీ స్థానిక అత్యవసర నంబర్‌కు కాల్ చేయండి', gu: '108 અથવા તમારા સ્થાનિક ઇમરજન્સી નંબર પર કૉલ કરો' },
   copyright: { en: '© 2024 Nourivox AI. All rights reserved.', hi: '© 2024 नौरिवॉक्स एआई। सर्वाधिकार सुरक्षित।', mr: '© २०२४ नौरिवॉक्स एआय. सर्व हक्क राखीव.', bn: '© ২০২৪ নুরিভক্স এআই। সর্বস্বত্ব সংরক্ষিত।', ta: '© 2024 நூரிவோக்ஸ் AI. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.', te: '© 2024 నౌరివాక్స్ AI. అన్ని హక్కులు ప్రత్యేకించబడ్డాయి.', gu: '© 2024 નૌરીવોક્સ AI. સર્વાધિકાર સુરક્ષિત.' },
   disclaimer: { en: 'Not a replacement for professional medical advice. Always consult your doctor.', hi: 'पेशेवर चिकित्सा सलाह का प्रतिस्थापन नहीं। हमेशा अपने डॉक्टर से सलाह लें।', mr: 'व्यावसायिक वैद्यकीय सल्ल्यासाठी पर्याय नाही. नेहमी आपल्या डॉक्टरांचा सल्ला घ्या.', bn: 'পেশাদার চিকিৎসা পরামর্শের বিকল্প নয়। সর্বদা আপনার ডাক্তারের সাথে পরামর্শ করুন।', ta: 'தொழில்முறை மருத்துவ ஆலோசனைக்கு மாற்றாக இல்லை. எப்போதும் உங்கள் மருத்துவரை அணுகவும்.', te: 'వృత్తిపరమైన వైద్య సలహాకు ప్రత్యామ్నాయం కాదు. ఎల్లప్పుడూ మీ వైద్యుడిని సంప్రదించండి.', gu: 'વ્યાવસાયિક તબીબી સલાહનો વિકલ્પ નથી. હંમેશા તમારા ડૉક્ટરની સલાહ લો.' },
 };
@@ -114,22 +116,7 @@ export const translations: Translations = {
 // SVG Icons
 
 export const Logo = () => (
-    <div className="flex items-center space-x-2">
-        <svg className="h-10 w-10 text-cyan-400" viewBox="0 0 165 140" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M110.791 43.7135C110.298 43.639 109.815 43.5869 109.322 43.5246C109.815 43.5869 110.298 43.639 110.791 43.7135Z" />
-            <path d="M129.584 104.282C123.635 125.323 103.82 140 80.8284 140H60.1659C37.174 140 17.3589 125.323 11.4101 104.282H0V63.2818H11.4101C17.3589 42.2408 37.174 27.5639 60.1659 27.5639H80.8284C103.82 27.5639 123.635 42.2408 129.584 63.2818H141V104.282H129.584Z" />
-            <path d="M114.391 8.875C114.391 13.7779 110.435 17.75 105.55 17.75C100.666 17.75 96.7099 13.7779 96.7099 8.875C96.7099 3.97211 100.666 0 105.55 0C110.435 0 114.391 3.97211 114.391 8.875Z" />
-            <path d="M105.55 17.75V34" stroke="currentColor" strokeWidth="8" />
-            <path d="M149 84.875H165" stroke="currentColor" strokeWidth="8" />
-            <ellipse cx="60.1659" cy="66.125" rx="7.05" ry="7.125" fill="white" />
-            <ellipse cx="87.8784" cy="66.125" rx="7.05" ry="7.125" fill="white" />
-            <path d="M60.1659 88.25C60.1659 88.25 68.9659 95.375 87.8784 88.25C87.8784 88.25 79.0784 84.75 60.1659 88.25Z" fill="white" />
-            <path d="M135.093 83.136C135.093 98.412 122.993 110.563 107.788 110.563C92.583 110.563 80.4834 98.412 80.4834 83.136C80.4834 78.4323 81.7146 74.0538 83.8549 70.25H80.8284L80.4834 69.875V63.2818L107.788 47.5L135.093 63.2818V83.136Z" />
-            <path d="M116.205 83.136H99.3711" stroke="white" strokeWidth="8" />
-            <path d="M107.788 91.5526V74.7192" stroke="white" strokeWidth="8" />
-        </svg>
-        <span className="text-2xl font-bold text-white">Nourivox</span>
-    </div>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAbFBMVEX///8AQ5v0+/MAQpr4+/QAO5gAP5n7/fwAPpn8/v4ARJz5/PsARZ39/v4AQJoAN5b6/PwAQJj///0ANpYAOJgANJcAOpkAOZgAM5UAMZMANJYAL5QALJMANZX7/P34+vsARp/y+fT0+fO/x96/xN0ALJMAAAbJSURBVHhe7d3NruMqEIDhI7sDcQiEc27//5d7j2zQhW0DBh3IeO+k2qLw8oUUSaL1gQYAAAAAAL9I9aXv/V60WvU/6pM0UeX9VlS1v6k+SRNF6t/W5+uEtE1GkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZG/A//GNHU0TpqmN1U9SkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZG/wPzTf0j6GquvS9a3qE8VqP43Wtf+96x//t" alt="Nourivox Logo" className="h-12 w-auto" />
 );
 
 
@@ -180,11 +167,11 @@ export const GoogleIcon = () => (
 );
 
 export const HeroRobot = () => (
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAOVBMVEX///8AAADz8/P8/Pzx8fHl5eXn5+f39/fq6ur09PTt7e3a2trg4ODT09PMzMzIyMjDw8Pe3t7X19c222ZTAAADJklEQVR4nO3d25KiMBiGYQoKiuAG3v9dD1JBkECIZDIz55x778A/VdqkG2wBAAAAAAAAAAAAAAAAAAAAAAAA/sA/1s5eB9uA0YAAAAAASUVORK5CYII=" alt="Nourivox Robot" className="w-full h-auto max-w-sm mx-auto" />
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAlgAAAHyCAMAAACh24n3AAAAXVBMVEX///8AQ5wAP5n7/fwAP5gARJz6/PwARZ39/v4AQJoAO5gAN5YAOJj5/PsANpYANJYAM5UANJcAMZMAOpkAL5QALJMANZX4+/QAQ5r7/P3y+fQARp/0+fO/x96/xN0ALJMAAJW+5gAACTxJRUeHic7d13V6pKEIBhEBEREVR8//97L6joUKoTGM5zZv7rVp8l7ZSaDg0GAAAAAAAAAAAAAADYw9W6u2/X/b5U6/sHqt/1t9+v273uW47vP6R+/3v1O32s2173D26jP6VpkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZG-P/w-pWlZpkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZG-pWlZpkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZGkaZG/AAAAAAAADAd/gG/d/oWl7zG7QAAAABJRU5ErkJggg==" alt="Nourivox Robot" className="w-full h-auto max-w-sm mx-auto" />
 );
 
 export const SpeakerOnIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg xmlns="http://www..w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
     </svg>
 );
@@ -291,6 +278,51 @@ export const ScopeIcon = () => (
     <path d="M14.5 14.5L18 18" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round"/>
     <circle cx="10" cy="10" r="3" stroke="#38bdf8" strokeWidth="1.5"/>
   </svg>
+);
+
+// Icons for Pharmacy Page
+export const PrescriptionIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+);
+export const OtcIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 21h4v-9h-4v9zm-6-9h4V8H4v4zm12 0h4V8h-4v4zM8 8a4 4 0 014-4h.01a4 4 0 013.99 4v0H8V8z" />
+    </svg>
+);
+export const WellnessIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+    </svg>
+);
+export const FindPharmacyIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+);
+
+// Icons for Outbreak Alerts Page
+export const AlertIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+export const CasesIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.124-1.282-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.124-1.282.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+);
+export const SeverityIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+    </svg>
+);
+export const PreventionIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 20.417l5.318 1.58C9.553 21.84 10.74 22 12 22s2.447-.16 3.682-.477L21 20.417c0-3.61-2.235-6.837-5.382-8.433z" />
+    </svg>
 );
 
 

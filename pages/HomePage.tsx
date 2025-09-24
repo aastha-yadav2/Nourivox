@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Chatbot from '../components/Chatbot';
+import Footer from '../components/Footer';
 import { useAppContext } from '../hooks/useAppContext';
 import { Logo, HeroRobot, SmartAiChatIcon, DoctorConnectIcon, PersonalizedCareIcon, SecurePrivateIcon } from '../constants';
 import { NavLink } from 'react-router-dom';
@@ -143,9 +144,12 @@ const HomePage: React.FC = () => {
   const [showChat, setShowChat] = useState(false);
 
   return (
-    <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-      {showChat ? <Chatbot /> : <LandingPage onStartJourney={() => setShowChat(true)} />}
-    </main>
+    <>
+      <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+        {showChat ? <Chatbot /> : <LandingPage onStartJourney={() => setShowChat(true)} />}
+      </main>
+      {!showChat && <Footer />}
+    </>
   );
 };
 

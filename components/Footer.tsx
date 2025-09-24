@@ -56,10 +56,14 @@ const Footer: React.FC = () => {
                             <li className="flex items-center"><EmailIcon /><span className="ml-3">{t('email_address')}</span></li>
                             <li className="flex items-center"><LocationIcon /><span className="ml-3">{t('availability')}</span></li>
                         </ul>
-                        <div className="mt-6 p-4 bg-emerald-900/50 border border-emerald-800 rounded-lg">
-                            <p className="font-semibold text-emerald-300">{t('emergency_title')}</p>
-                            <p className="text-sm text-emerald-200/80">{t('emergency_desc')}</p>
-                        </div>
+                        <a 
+                            href="tel:108" 
+                            className="block mt-6 p-4 bg-emerald-900/50 border border-emerald-800 rounded-lg hover:bg-emerald-900/70 transition-all duration-300 transform hover:scale-105 cursor-pointer group"
+                            aria-label="Call emergency services at 108"
+                        >
+                            <p className="font-semibold text-emerald-300 group-hover:text-white transition-colors">{t('emergency_title')}</p>
+                            <p className="text-sm text-emerald-200/80 group-hover:text-emerald-100 transition-colors">{t('emergency_desc')}</p>
+                        </a>
                     </div>
                 </div>
             </div>
