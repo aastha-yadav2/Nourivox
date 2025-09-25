@@ -10,8 +10,14 @@ export const useAppContext = () => {
     throw new Error('useAppContext must be used within an AppContextProvider');
   }
   
-  const t = (key: string): string => {
-    return translations[key]?.[context.language] || key;
+  const t = (key: string, replacements?: { [key: string]: string }): string => {
+    let translation = translations[key]?.[context.language] || key;
+    if (replacements) {
+        Object.keys(replacements).forEach(rKey => {
+            translation = translation.replace(`{${rKey}}`, replacements[rKey]);
+        });
+    }
+    return translation;
   };
 
   return { ...context, t };

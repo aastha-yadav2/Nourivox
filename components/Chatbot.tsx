@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
+import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../hooks/useAppContext';
 import { UserIcon, AiIcon, SendIcon, PaperClipIcon, MicrophoneIcon, SpeakerOnIcon, SpeakerOffIcon, MenuIcon, NewChatIcon, TrashIcon, languages, SettingsIcon } from '../constants';
 import type { Message, LanguageCode, ChatSession } from '../types';
@@ -55,6 +56,7 @@ declare global {
 
 export const Chatbot: React.FC = () => {
   const { language, setLanguage, t, isSpeechEnabled, setIsSpeechEnabled } = useAppContext();
+  const navigate = useNavigate();
   const [input, setInput] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -220,7 +222,6 @@ export const Chatbot: React.FC = () => {
     
     const userMessage: Message = { sender: 'user', text: messageText, image: imagePreview || undefined };
     
-    // Update state with user message
     const currentSession = chatHistory.find(s => s.id === currentSessionId);
     const isFirstMessage = currentSession ? currentSession.messages.length === 0 : false;
     
@@ -284,6 +285,54 @@ export const Chatbot: React.FC = () => {
     }
   }, [input, imageFile, imagePreview, isLoading, language, setLanguage, ai, systemInstruction, speakText, chatHistory, currentSessionId]);
 
+  const getNavigationCommands = useCallback(() => ({
+    [t('home').toLowerCase()]: '/',
+    [t('about').toLowerCase()]: '/about',
+    [t('doctors').toLowerCase()]: '/doctors',
+    [t('vaccines').toLowerCase()]: '/vaccines',
+    [t('pharmacy').toLowerCase()]: '/pharmacy',
+    [t('schemes').toLowerCase()]: '/schemes',
+    [t('consultation').toLowerCase()]: '/consultation',
+    [t('dashboard').toLowerCase()]: '/dashboard',
+  }), [t]);
+
+  const handleSpeechResult = useCallback((transcript: string) => {
+    const command = transcript.toLowerCase().trim().replace(/[.,?]/g, '');
+    const navigationCommands = getNavigationCommands();
+    
+    let targetPath: string | null = null;
+    let pageName: string | null = null;
+
+    for (const page in navigationCommands) {
+        if (command.includes(page)) {
+            targetPath = navigationCommands[page as keyof typeof navigationCommands];
+            pageName = page;
+            break;
+        }
+    }
+
+    if (targetPath && pageName && currentSessionId) {
+        const confirmationText = t('navigating_message', { page: pageName.charAt(0).toUpperCase() + pageName.slice(1) });
+        
+        const aiMessage: Message = { sender: 'ai', text: confirmationText };
+        
+        setChatHistory(prev => prev.map(s => {
+            if (s.id === currentSessionId) {
+                const isFirstMessage = s.messages.length === 0;
+                const newTitle = isFirstMessage ? `Navigation: ${pageName}` : s.title;
+                return { ...s, title: newTitle, messages: [...s.messages, aiMessage] };
+            }
+            return s;
+        }));
+        
+        speakText(confirmationText, language);
+        navigate(targetPath);
+    } else {
+        handleSendMessage(transcript);
+    }
+  }, [getNavigationCommands, handleSendMessage, language, speakText, navigate, t, currentSessionId, setChatHistory]);
+
+
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) return;
@@ -292,12 +341,12 @@ export const Chatbot: React.FC = () => {
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = langMap[language];
-    recognition.onresult = (event) => handleSendMessage(event.results[0][0].transcript);
+    recognition.onresult = (event) => handleSpeechResult(event.results[0][0].transcript);
     recognition.onerror = (event) => { console.error("Speech recognition error:", event.error); setIsListening(false); };
     recognition.onend = () => setIsListening(false);
     recognitionRef.current = recognition;
     return () => recognitionRef.current?.stop();
-  }, [language, handleSendMessage, langMap]);
+  }, [language, handleSpeechResult, langMap]);
 
   const handleToggleListening = () => {
     if (isListening) {
