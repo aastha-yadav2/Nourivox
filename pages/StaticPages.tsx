@@ -1,5 +1,4 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { 
     InfoIcon, PhoneIcon, BookmarkIcon, CopyIcon, ExternalLinkIcon, AdvancedAITechnologyIcon, 
@@ -7,7 +6,7 @@ import {
     UploadCloudIcon, CloseIcon, CheckCircleIcon, XCircleIcon, QuestionMarkCircleIcon, AlertIcon, FirstAidIcon, FitnessIcon, DietIcon
 } from '../constants';
 import { useAppContext } from '../hooks/useAppContext';
-import type { PrescriptionAnalysisResult, AnalysisHistoryItem, SymptomAnalysisResult, PharmacyInfo } from '../types';
+import type { PrescriptionAnalysisResult, AnalysisHistoryItem, SymptomAnalysisResult, PharmacyInfo, Appointment, Reminder } from '../types';
 
 
 const InfoCard: React.FC<{title: string, children: React.ReactNode}> = ({ title, children }) => (
@@ -176,6 +175,8 @@ export const DoctorsPage: React.FC = () => {
 };
 
 export const VaccinesPage: React.FC = () => {
+    const { isAuthenticated, t, openLoginModal } = useAppContext();
+    
     const vaccineSchedule = [
         { name: 'BCG (Bacillus Calmette-Guerin)', timing: 'At Birth' },
         { name: 'Hepatitis B (Birth Dose)', timing: 'At Birth' },
@@ -187,6 +188,132 @@ export const VaccinesPage: React.FC = () => {
         { name: 'Typhoid Conjugate Vaccine', timing: '9-12 Months' },
         { name: 'COVID-19 Vaccine', timing: 'As per Govt. guidelines' },
     ];
+
+    const [appointments, setAppointments] = useState<Appointment[]>(() => {
+        try {
+          const saved = localStorage.getItem('vaccineAppointments');
+          return saved ? JSON.parse(saved) : [];
+        } catch (error) { return []; }
+    });
+
+    const [reminders, setReminders] = useState<Reminder[]>(() => {
+        try {
+          const saved = localStorage.getItem('vaccineReminders');
+          return saved ? JSON.parse(saved) : [];
+        } catch (error) { return []; }
+    });
+
+    const [newAppointment, setNewAppointment] = useState({ vaccine: '', doctor: '', date: '', time: '' });
+    const [newReminder, setNewReminder] = useState({ vaccine: '', datetime: '' });
+    const [notificationPermission, setNotificationPermission] = useState('default');
+    
+    useEffect(() => {
+        if ('Notification' in window) {
+          setNotificationPermission(Notification.permission);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            localStorage.setItem('vaccineAppointments', JSON.stringify(appointments));
+        }
+    }, [appointments, isAuthenticated]);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            localStorage.setItem('vaccineReminders', JSON.stringify(reminders));
+        }
+    }, [reminders, isAuthenticated]);
+
+    const handleRequestNotificationPermission = () => {
+        if ('Notification' in window) {
+          Notification.requestPermission().then(permission => {
+            setNotificationPermission(permission);
+          });
+        }
+    };
+    
+    const checkNotifications = useCallback(() => {
+        if (notificationPermission !== 'granted' || !isAuthenticated) return;
+        
+        const now = new Date().getTime();
+        const ONE_HOUR_IN_MS = 60 * 60 * 1000;
+
+        const dueReminders = reminders.filter(r => new Date(r.datetime).getTime() <= now);
+        if (dueReminders.length > 0) {
+          dueReminders.forEach(r => {
+            new Notification('Vaccine Reminder', { body: r.text });
+          });
+          setReminders(prev => prev.filter(r => !dueReminders.some(due => due.id === r.id)));
+        }
+
+        const upcomingAppointments = appointments.filter(app => {
+          if (app.notified) return false;
+          const appTime = new Date(`${app.date}T${app.time}`).getTime();
+          const timeUntil = appTime - now;
+          return timeUntil > 0 && timeUntil <= ONE_HOUR_IN_MS;
+        });
+
+        if (upcomingAppointments.length > 0) {
+          upcomingAppointments.forEach(app => {
+            new Notification('Vaccination Appointment Reminder', {
+              body: `Your appointment for ${app.doctor} is in about an hour.`,
+            });
+          });
+          setAppointments(prev =>
+            prev.map(app =>
+              upcomingAppointments.some(up => up.id === app.id) ? { ...app, notified: true } : app
+            )
+          );
+        }
+    }, [reminders, appointments, notificationPermission, isAuthenticated]);
+    
+    useEffect(() => {
+        const interval = setInterval(checkNotifications, 10000); // Check every 10 seconds
+        return () => clearInterval(interval);
+    }, [checkNotifications]);
+
+    const handleAddAppointment = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (newAppointment.vaccine && newAppointment.doctor && newAppointment.date && newAppointment.time) {
+          const appointmentText = `${newAppointment.vaccine} with ${newAppointment.doctor}`;
+          setAppointments([...appointments, { doctor: appointmentText, date: newAppointment.date, time: newAppointment.time, id: Date.now() }]);
+          setNewAppointment({ vaccine: '', doctor: '', date: '', time: '' });
+        }
+    };
+      
+    const handleAddReminder = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (newReminder.vaccine && newReminder.datetime) {
+          const reminderText = `Reminder for ${newReminder.vaccine}`;
+          setReminders([...reminders, { text: reminderText, datetime: newReminder.datetime, id: Date.now() }]);
+          setNewReminder({ vaccine: '', datetime: '' });
+        }
+    };
+
+    const NotificationBanner = () => {
+        if (notificationPermission === 'granted') return null;
+        return (
+          <div className="bg-gray-700/50 border border-gray-600 p-4 rounded-lg mb-8 flex items-center justify-between">
+            <div className="flex items-center">
+              <AlertIcon />
+              <p className="ml-3 text-gray-300">
+                {notificationPermission === 'denied'
+                  ? 'Notifications are blocked. Please enable them in your browser settings for alerts.'
+                  : 'Enable notifications to get alerts for your appointments and reminders.'}
+              </p>
+            </div>
+            {notificationPermission === 'default' && (
+              <button
+                onClick={handleRequestNotificationPermission}
+                className="px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-md hover:bg-teal-700"
+              >
+                Enable
+              </button>
+            )}
+          </div>
+        );
+    };
 
     return (
         <main className="container mx-auto p-4 sm:p-6 lg:p-8">
@@ -214,6 +341,73 @@ export const VaccinesPage: React.FC = () => {
                  <p className="text-center text-gray-500 mt-8 text-sm">
                     Disclaimer: This is a general guide. Please consult your pediatrician for a personalized vaccination schedule.
                 </p>
+            </div>
+
+            <div className="mt-16 relative">
+               {!isAuthenticated && (
+                <div className="absolute inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-lg p-4">
+                  <h2 className="text-2xl font-bold text-white mb-4 text-center">Please log in to plan your vaccinations.</h2>
+                  <button 
+                    onClick={openLoginModal} 
+                    className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors"
+                  >
+                    Login
+                  </button>
+                </div>
+              )}
+              <div className={!isAuthenticated ? 'blur-sm pointer-events-none' : ''}>
+                <h2 className="text-3xl font-bold text-white mb-8 text-center">Plan Your Vaccinations</h2>
+                <NotificationBanner />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Appointments Section */}
+                  <div className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700 flex flex-col">
+                    <h2 className="text-2xl font-semibold text-teal-400 mb-4">Vaccination Appointments</h2>
+                    <div className="space-y-4 mb-6 flex-grow max-h-60 overflow-y-auto pr-2">
+                      {appointments.length > 0 ? appointments.map(app => (
+                        <div key={app.id} className="p-4 bg-gray-700 rounded-lg border border-gray-600">
+                          <p className="font-bold text-white">{app.doctor}</p>
+                          <p className="text-sm text-gray-400">{new Date(app.date).toDateString()} at {app.time}</p>
+                        </div>
+                      )) : <p className="text-gray-500">No upcoming vaccination appointments.</p>}
+                    </div>
+                    <form onSubmit={handleAddAppointment} className="space-y-4 mt-auto">
+                      <h3 className="text-lg font-medium text-gray-200 pt-4 border-t border-gray-700">Schedule a new appointment</h3>
+                      <select value={newAppointment.vaccine} onChange={e => setNewAppointment({...newAppointment, vaccine: e.target.value})} className="w-full p-2 border border-gray-600 bg-gray-700 text-white rounded" required>
+                        <option value="" disabled>Select a vaccine</option>
+                        {vaccineSchedule.map(v => <option key={v.name} value={v.name}>{v.name}</option>)}
+                      </select>
+                      <input type="text" placeholder="Doctor or Clinic Name" value={newAppointment.doctor} onChange={e => setNewAppointment({...newAppointment, doctor: e.target.value})} className="w-full p-2 border border-gray-600 bg-gray-700 text-white rounded" required />
+                      <div className="flex gap-4">
+                        <input type="date" value={newAppointment.date} onChange={e => setNewAppointment({...newAppointment, date: e.target.value})} className="w-full p-2 border border-gray-600 bg-gray-700 text-white rounded" required />
+                        <input type="time" value={newAppointment.time} onChange={e => setNewAppointment({...newAppointment, time: e.target.value})} className="w-full p-2 border border-gray-600 bg-gray-700 text-white rounded" required />
+                      </div>
+                      <button type="submit" className="w-full py-2 px-4 bg-teal-600 text-white rounded-md hover:bg-teal-700">Schedule Appointment</button>
+                    </form>
+                  </div>
+
+                  {/* Reminders Section */}
+                  <div className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700 flex flex-col">
+                    <h2 className="text-2xl font-semibold text-indigo-400 mb-4">Vaccine Reminders</h2>
+                    <div className="space-y-4 mb-6 flex-grow max-h-60 overflow-y-auto pr-2">
+                      {reminders.length > 0 ? reminders.map(rem => (
+                        <div key={rem.id} className="p-4 bg-gray-700 rounded-lg border border-gray-600">
+                          <p className="font-bold text-white">{rem.text}</p>
+                          <p className="text-sm text-gray-400">{new Date(rem.datetime).toLocaleString()}</p>
+                        </div>
+                      )) : <p className="text-gray-500">No vaccine reminders set.</p>}
+                    </div>
+                    <form onSubmit={handleAddReminder} className="space-y-4 mt-auto">
+                      <h3 className="text-lg font-medium text-gray-200 pt-4 border-t border-gray-700">Add a new reminder</h3>
+                      <select value={newReminder.vaccine} onChange={e => setNewReminder({...newReminder, vaccine: e.target.value})} className="w-full p-2 border border-gray-600 bg-gray-700 text-white rounded" required>
+                        <option value="" disabled>Select a vaccine</option>
+                        {vaccineSchedule.map(v => <option key={v.name} value={v.name}>{v.name}</option>)}
+                      </select>
+                      <input type="datetime-local" value={newReminder.datetime} onChange={e => setNewReminder({...newReminder, datetime: e.target.value})} className="w-full p-2 border border-gray-600 bg-gray-700 text-white rounded" required />
+                      <button type="submit" className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Add Reminder</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
             </div>
         </main>
     );
@@ -772,56 +966,3 @@ export const SchemesPage: React.FC = () => (
     </InfoCard>
   </main>
 );
-
-export const HelplinePage: React.FC = () => {
-  const helplines = [
-    { name: 'National Health Helpline', number: '1800-180-1104' },
-    { name: 'KIRAN Mental Health Helpline', number: '1800-599-0019' },
-    { name: 'National Emergency Number', number: '112' },
-    { name: 'Medical Ambulance', number: '108' },
-    { name: "Women's Helpline", number: '1091' },
-    { name: "Child Helpline", number: '1098' },
-  ];
-  const [copied, setCopied] = useState('');
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(text);
-    setTimeout(() => setCopied(''), 2000);
-  };
-
-  return (
-    <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-white mb-4">Emergency Helplines</h1>
-        <p className="text-lg text-gray-400">Important contact numbers for health emergencies and support.</p>
-      </div>
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-gray-800/50 border border-gray-700 rounded-xl shadow-lg">
-          <ul className="divide-y divide-gray-700">
-            {helplines.map((line, index) => (
-              <li key={index} className="p-4 md:p-6 flex items-center justify-between group">
-                <div className="flex items-center">
-                  <div className="p-3 bg-gray-700/50 rounded-full mr-4">
-                    <PhoneIcon />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">{line.name}</h3>
-                    <a href={`tel:${line.number}`} className="text-teal-400 font-mono text-lg hover:underline">{line.number}</a>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => copyToClipboard(line.number)}
-                  className="p-3 rounded-full bg-gray-700 text-gray-400 hover:bg-teal-600 hover:text-white transition-all opacity-0 group-hover:opacity-100"
-                  aria-label={`Copy ${line.name} number`}
-                >
-                  {copied === line.number ? <CheckCircleIcon /> : <CopyIcon />}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </main>
-  );
-};

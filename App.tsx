@@ -3,10 +3,10 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 import { AppContextProvider } from './context/AppContext';
 import Header from './components/Header';
 import AuthModal from './components/AuthModal';
+import EmergencyModal from './components/EmergencyModal';
 import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
-import { AboutPage, DoctorsPage, VaccinesPage, PharmacyPage, SchemesPage, HelplinePage } from './pages/StaticPages';
-import OutbreakAlertsPage from './pages/OutbreakAlertsPage';
+import { AboutPage, DoctorsPage, VaccinesPage, PharmacyPage, SchemesPage } from './pages/StaticPages';
 
 const AppLayout = () => {
   return (
@@ -20,12 +20,11 @@ const AppLayout = () => {
           <Route path="/vaccines" element={<VaccinesPage />} />
           <Route path="/pharmacy" element={<PharmacyPage />} />
           <Route path="/schemes" element={<SchemesPage />} />
-          <Route path="/outbreaks" element={<OutbreakAlertsPage />} />
-          <Route path="/helplines" element={<HelplinePage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
         </Routes>
       </main>
       <AuthModal />
+      <EmergencyModal />
     </div>
   );
 };
