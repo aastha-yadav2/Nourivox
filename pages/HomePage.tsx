@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Chatbot from '../components/Chatbot';
+import { Chatbot } from '../components/Chatbot';
 import Footer from '../components/Footer';
 import { useAppContext } from '../hooks/useAppContext';
 import { Logo, HeroRobot, SmartAiChatIcon, DoctorConnectIcon, PersonalizedCareIcon, SecurePrivateIcon } from '../constants';

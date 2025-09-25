@@ -79,6 +79,8 @@ export const translations: Translations = {
   chatbot_placeholder: { en: 'Ask a health question or upload an image...', hi: 'स्वास्थ्य प्रश्न पूछें या एक छवि अपलोड करें...', mr: 'आरोग्य प्रश्न विचारा किंवा एक प्रतिमा अपलोड करा...', bn: 'একটি স্বাস্থ্য প্রশ্ন জিজ্ঞাসা করুন বা একটি ছবি আপলোড করুন...', ta: 'சுகாதாரக் கேள்வியைக் கேட்கவும் அல்லது படத்தைப் பதிவேற்றவும்...', te: 'ఆరోగ్య ప్రశ్న అడగండి లేదా చిత్రాన్ని అప్‌లోడ్ చేయండి...', gu: 'આરોગ્ય પ્રશ્ન પૂછો અથવા છબી અપલોડ કરો...' },
   send: { en: 'Send', hi: 'भेजें', mr: 'पाठवा', bn: 'পাঠান', ta: 'அனுப்பு', te: 'పంపండి', gu: 'મોકલો' },
   upload_image: { en: 'Upload Image', hi: 'छवि अपलोड करें', mr: 'प्रतिमा अपलोड करा', bn: 'ছবি আপলোড করুন', ta: 'படத்தை பதிவேற்றவும்', te: 'చిత్రాన్ని అప్‌లోడ్ చేయండి', gu: 'છબી અપલોડ કરો' },
+  new_chat: { en: 'New Chat', hi: 'नई चैट', mr: 'नवीन गप्पा', bn: 'নতুন চ্যাট', ta: 'புதிய அரட்டை', te: 'కొత్త చాట్', gu: 'નવી ચેટ' },
+  chat_history: { en: 'Chat History', hi: 'चैट इतिहास', mr: 'गप्पांचा इतिहास', bn: 'চ্যাট ইতিহাস', ta: 'அரட்டை வரலாறு', te: 'చాట్ చరిత్ర', gu: 'ચેટ ઇતિહાસ' },
   // Dashboard
   my_appointments: { en: 'My Appointments', hi: 'मेरी नियुक्तियाँ', mr: 'माझ्या भेटी', bn: 'আমার অ্যাপয়েন্টমেন্ট', ta: 'எனது சந்திப்புகள்', te: 'నా అపాయింట్‌మెంట్లు', gu: 'મારી નિમણૂంકો' },
   book_appointment: { en: 'Book a new appointment', hi: 'एक नई नियुक्ति बुक करें', mr: 'नवीन भेट बुक करा', bn: 'একটি নতুন অ্যাপয়েন্টমেন্ট বুক করুন', ta: 'புதிய சந்திப்பை பதிவு செய்யுங்கள்', te: 'కొత్త అపాయింట్‌మెంట్ బుక్ చేయండి', gu: 'નવી એપોઇન્ટમેન્ટ બુક કરો' },
@@ -319,4 +321,16 @@ export const FitnessIcon = () => (
 
 export const DietIcon = () => (
     <svg className="w-6 h-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10a5 5 0 11-10 0 5 5 0 0110 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 6a1 1 0 011 1v1a1 1 0 01-1 1" /></svg>
+);
+
+export const MenuIcon = () => (
+    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+);
+
+export const NewChatIcon = () => (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+);
+
+export const TrashIcon = () => (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 );

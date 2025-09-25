@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { useAppContext } from '../hooks/useAppContext';
-import { languages, UserIcon, AiIcon, SendIcon, PaperClipIcon, MicrophoneIcon, SpeakerOnIcon, SpeakerOffIcon } from '../constants';
-import type { Message, LanguageCode } from '../types';
+import { UserIcon, AiIcon, SendIcon, PaperClipIcon, MicrophoneIcon, SpeakerOnIcon, SpeakerOffIcon, MenuIcon, NewChatIcon, TrashIcon, languages } from '../constants';
+import type { Message, LanguageCode, ChatSession } from '../types';
 
 // Fix: Add type definitions for Web Speech API to resolve TypeScript errors.
 interface SpeechRecognitionResult {
@@ -52,9 +52,8 @@ declare global {
   }
 }
 
-const Chatbot: React.FC = () => {
+export const Chatbot: React.FC = () => {
   const { language, setLanguage, t } = useAppContext();
-  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -62,6 +61,9 @@ const Chatbot: React.FC = () => {
   const [isListening, setIsListening] = useState(false);
   const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -87,26 +89,72 @@ const Chatbot: React.FC = () => {
     4.  **DO NOT** provide a medical diagnosis under any circumstances.
 - **Prescription Analysis:** When analyzing a prescription image, identify and list the medicine names in a clear, bulleted list. Information about medications should be general and based on publicly available information from official sources.`;
 
-  // Map app language codes to BCP 47 tags for Speech API
-  const langMap: Record<LanguageCode, string> = {
-    en: 'en-US',
-    hi: 'hi-IN',
-    mr: 'mr-IN',
-    bn: 'bn-IN',
-    ta: 'ta-IN',
-    te: 'te-IN',
-    gu: 'gu-IN',
+  const langMap: Record<LanguageCode, string> = { en: 'en-US', hi: 'hi-IN', mr: 'mr-IN', bn: 'bn-IN', ta: 'ta-IN', te: 'te-IN', gu: 'gu-IN' };
+
+  // Load history from localStorage on initial render
+  useEffect(() => {
+    try {
+      const savedHistory = localStorage.getItem('nourivoxChatHistory');
+      if (savedHistory) {
+        const history = JSON.parse(savedHistory);
+        setChatHistory(history);
+        setCurrentSessionId(history[0]?.id || null);
+      } else {
+        startNewChat();
+      }
+    } catch (error) {
+      console.error("Failed to load chat history:", error);
+      startNewChat();
+    }
+  }, []);
+
+  // Save history to localStorage whenever it changes
+  useEffect(() => {
+    if (chatHistory.length > 0) {
+      localStorage.setItem('nourivoxChatHistory', JSON.stringify(chatHistory));
+    }
+  }, [chatHistory]);
+
+  const startNewChat = () => {
+    const newSession: ChatSession = {
+      id: Date.now().toString(),
+      title: t('new_chat'),
+      messages: [],
+      timestamp: new Date().toISOString()
+    };
+    setChatHistory(prev => [newSession, ...prev]);
+    setCurrentSessionId(newSession.id);
   };
   
+  const selectChat = (id: string) => {
+    setCurrentSessionId(id);
+  };
+  
+  const deleteChat = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const updatedHistory = chatHistory.filter(session => session.id !== id);
+    setChatHistory(updatedHistory);
+    
+    if (currentSessionId === id) {
+      if (updatedHistory.length > 0) {
+        setCurrentSessionId(updatedHistory[0].id);
+      } else {
+        startNewChat();
+      }
+    }
+    if (updatedHistory.length === 0) {
+        localStorage.removeItem('nourivoxChatHistory');
+    }
+  };
+
   const speakText = useCallback((text: string, langCode: LanguageCode) => {
     if (!isSpeechEnabled || typeof speechSynthesis === 'undefined' || voices.length === 0) return;
 
-    speechSynthesis.cancel(); // Stop any previous speech
+    speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     const targetLang = langMap[langCode];
     utterance.lang = targetLang;
-
-    // --- Voice Selection Logic ---
+    
     const femaleVoiceKeywords = ['female', 'girl', 'woman', 'kanya', 'zira', 'susan', 'samantha', 'femenino', 'femme', 'wanita'];
     const languageVoices = voices.filter(v => v.lang === targetLang || v.lang.startsWith(langCode));
     let selectedVoice = languageVoices.find(v => femaleVoiceKeywords.some(keyword => v.name.toLowerCase().includes(keyword)));
@@ -116,7 +164,6 @@ const Chatbot: React.FC = () => {
     if (selectedVoice) {
       utterance.voice = selectedVoice;
     }
-    // --- End of Voice Selection Logic ---
     
     speechSynthesis.speak(utterance);
   }, [isSpeechEnabled, voices, langMap]);
@@ -130,14 +177,12 @@ const Chatbot: React.FC = () => {
     if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
         speechSynthesis.onvoiceschanged = populateVoiceList;
     }
-    return () => {
-        if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
-    }
+    return () => { if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel(); }
   }, []);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [chatHistory, currentSessionId]);
 
   const fileToGenerativePart = async (file: File) => {
     const base64EncodedDataPromise = new Promise<string>((resolve) => {
@@ -154,53 +199,44 @@ const Chatbot: React.FC = () => {
     const messageText = textOverride ?? input;
     const fileToSend = imageFile;
 
-    if ((!messageText.trim() && !fileToSend) || isLoading) {
-      return;
-    }
+    if ((!messageText.trim() && !fileToSend) || isLoading || !currentSessionId) return;
 
     setIsLoading(true);
+    
     const userMessage: Message = { sender: 'user', text: messageText, image: imagePreview || undefined };
-    setMessages(prev => [...prev, userMessage]);
+    
+    // Update state with user message
+    const currentSession = chatHistory.find(s => s.id === currentSessionId);
+    const isFirstMessage = currentSession ? currentSession.messages.length === 0 : false;
+    
+    const updatedHistoryWithUserMsg = chatHistory.map(session => {
+        if (session.id === currentSessionId) {
+            const newTitle = isFirstMessage 
+                ? messageText.substring(0, 40) + (messageText.length > 40 ? '...' : '') 
+                : session.title;
+            return {
+                ...session,
+                title: newTitle,
+                messages: [...session.messages, userMessage],
+            };
+        }
+        return session;
+    });
+    setChatHistory(updatedHistoryWithUserMsg);
     
     setInput('');
     setImageFile(null);
     setImagePreview(null);
     
     try {
-      const model = ai.models;
       const textPart = { text: messageText || 'Please analyze this image.' };
-      let requestParts;
-
-      if (fileToSend) {
-        const imagePart = await fileToGenerativePart(fileToSend);
-        requestParts = [imagePart, textPart];
-      } else {
-        requestParts = [textPart];
-      }
+      const requestParts = fileToSend ? [await fileToGenerativePart(fileToSend), textPart] : [textPart];
       
-      const responseSchema = {
-        type: Type.OBJECT,
-        properties: {
-          reply: {
-            type: Type.STRING,
-            description: "The AI's response to the user in their language.",
-          },
-          lang: {
-            type: Type.STRING,
-            description: `The language code of the reply. Must be one of: ${languages.map(l => l.code).join(', ')}.`,
-          },
-        },
-        required: ['reply', 'lang'],
-      };
+      const responseSchema = { type: Type.OBJECT, properties: { reply: { type: Type.STRING }, lang: { type: Type.STRING } }, required: ['reply', 'lang'] };
 
-      const response = await model.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: { parts: requestParts },
-        config: {
-          systemInstruction: systemInstruction,
-          responseMimeType: "application/json",
-          responseSchema: responseSchema,
-        },
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash', contents: { parts: requestParts },
+        config: { systemInstruction, responseMimeType: "application/json", responseSchema }
       });
       
       let aiResponseText: string;
@@ -209,83 +245,52 @@ const Chatbot: React.FC = () => {
       try {
         const jsonResponse = JSON.parse(response.text);
         aiResponseText = jsonResponse.reply || "I'm sorry, I couldn't generate a proper response.";
-        
         const receivedLang = jsonResponse.lang;
-        if (languages.some(l => l.code === receivedLang)) {
+        if (languages.some(l => l.code === receivedLang) && receivedLang !== language) {
           detectedLang = receivedLang;
-          // If the detected language is different, update the app's language.
-          if (receivedLang !== language) {
-            setLanguage(receivedLang);
-          }
+          setLanguage(receivedLang);
         }
-
       } catch (e) {
-        console.error("Failed to parse JSON response:", e, "Raw response:", response.text);
         aiResponseText = response.text || 'Sorry, I encountered an error. Please try again.';
       }
       
       const aiMessage: Message = { sender: 'ai', text: aiResponseText };
-      setMessages(prev => [...prev, aiMessage]);
+      setChatHistory(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, aiMessage] } : s));
       speakText(aiResponseText, detectedLang);
 
     } catch (error) {
       console.error("Error calling Gemini API:", error);
       const errorMessageText = 'Sorry, I encountered an error. Please try again.';
       const errorMessage: Message = { sender: 'ai', text: errorMessageText };
-      setMessages(prev => [...prev, errorMessage]);
+      setChatHistory(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, errorMessage] } : s));
       speakText(errorMessageText, language);
-
     } finally {
       setIsLoading(false);
     }
-  }, [input, imageFile, imagePreview, isLoading, language, setLanguage, ai, systemInstruction, speakText]);
-
+  }, [input, imageFile, imagePreview, isLoading, language, setLanguage, ai, systemInstruction, speakText, chatHistory, currentSessionId]);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      console.warn("Speech recognition not supported in this browser.");
-      return;
-    }
+    if (!SpeechRecognition) return;
 
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = langMap[language];
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      handleSendMessage(transcript);
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
-      setIsListening(false);
-    };
-    
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
+    recognition.onresult = (event) => handleSendMessage(event.results[0][0].transcript);
+    recognition.onerror = (event) => { console.error("Speech recognition error:", event.error); setIsListening(false); };
+    recognition.onend = () => setIsListening(false);
     recognitionRef.current = recognition;
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
+    return () => recognitionRef.current?.stop();
   }, [language, handleSendMessage, langMap]);
 
   const handleToggleListening = () => {
-    const recognition = recognitionRef.current;
-    if (!recognition) return;
-
     if (isListening) {
-      recognition.stop();
+      recognitionRef.current?.stop();
     } else {
       setInput('');
       setIsListening(true);
-      recognition.start();
+      recognitionRef.current?.start();
     }
   };
 
@@ -297,80 +302,81 @@ const Chatbot: React.FC = () => {
     }
   };
 
+  const currentMessages = chatHistory.find(s => s.id === currentSessionId)?.messages || [];
+
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] bg-white rounded-lg shadow-xl overflow-hidden">
-        <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-800">Nourivox AI Assistant</h2>
-            <button 
-                onClick={() => setIsSpeechEnabled(!isSpeechEnabled)} 
-                className="p-2 text-gray-500 hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-full"
-                aria-label={isSpeechEnabled ? "Disable text-to-speech" : "Enable text-to-speech"}
-            >
-            {isSpeechEnabled ? <SpeakerOnIcon /> : <SpeakerOffIcon />}
-            </button>
-        </div>
-      <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-        {messages.map((msg, index) => (
-          <div key={index} className={`flex items-start gap-4 ${msg.sender === 'user' ? 'justify-end' : ''}`}>
-            {msg.sender === 'ai' && <AiIcon />}
-            <div className={`rounded-lg px-4 py-3 max-w-lg ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'}`}>
-              {msg.image && <img src={msg.image} alt="User upload" className="rounded-lg mb-2 w-full object-cover max-h-80" />}
-              <p className="whitespace-pre-wrap">{msg.text}</p>
+    <div className="flex h-[calc(100vh-8rem)] bg-white rounded-lg shadow-xl overflow-hidden">
+        {/* History Panel */}
+        <div className={`
+            absolute md:relative z-20 md:z-auto
+            h-full w-72 bg-gray-100 border-r border-gray-200 
+            transition-transform duration-300 ease-in-out
+            ${isHistoryPanelOpen ? 'translate-x-0' : '-translate-x-full'}
+            md:translate-x-0
+            flex flex-col
+        `}>
+            <div className="p-4 border-b flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-800">{t('chat_history')}</h2>
+                <button onClick={startNewChat} className="p-2 text-gray-600 hover:text-teal-600">
+                    <NewChatIcon />
+                </button>
             </div>
-            {msg.sender === 'user' && <UserIcon />}
-          </div>
-        ))}
-        {isLoading && (
-            <div className="flex items-start gap-4">
-                <AiIcon />
-                <div className="rounded-lg px-4 py-3 max-w-lg bg-gray-100 text-gray-800">
-                    <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
-                        <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse [animation-delay:0.2s]"></div>
-                        <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse [animation-delay:0.4s]"></div>
+            <div className="flex-1 overflow-y-auto">
+                {chatHistory.map(session => (
+                    <div 
+                        key={session.id} 
+                        onClick={() => selectChat(session.id)}
+                        className={`p-3 m-2 rounded-lg cursor-pointer group flex justify-between items-center ${currentSessionId === session.id ? 'bg-teal-100' : 'hover:bg-gray-200'}`}
+                    >
+                        <p className="text-sm text-gray-700 truncate flex-1 pr-2">{session.title}</p>
+                        <button onClick={(e) => deleteChat(e, session.id)} className="p-1 text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <TrashIcon />
+                        </button>
                     </div>
+                ))}
+            </div>
+        </div>
+
+        {/* Main Chat Panel */}
+        <div className="flex-1 flex flex-col bg-white">
+            <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
+                <div className="flex items-center">
+                    <button onClick={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)} className="p-2 mr-2 text-gray-600 hover:text-teal-600 md:hidden">
+                        <MenuIcon />
+                    </button>
+                    <h2 className="text-lg font-semibold text-gray-800">Nourivox AI Assistant</h2>
+                </div>
+                <button onClick={() => setIsSpeechEnabled(!isSpeechEnabled)} className="p-2 text-gray-500 hover:text-teal-600 rounded-full" aria-label={isSpeechEnabled ? "Disable TTS" : "Enable TTS"}>
+                    {isSpeechEnabled ? <SpeakerOnIcon /> : <SpeakerOffIcon />}
+                </button>
+            </div>
+            <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+                {currentMessages.map((msg, index) => (
+                    <div key={index} className={`flex items-start gap-4 ${msg.sender === 'user' ? 'justify-end' : ''}`}>
+                        {msg.sender === 'ai' && <AiIcon />}
+                        <div className={`rounded-lg px-4 py-3 max-w-lg ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'}`}>
+                            {msg.image && <img src={msg.image} alt="User upload" className="rounded-lg mb-2 w-full object-cover max-h-80" />}
+                            <p className="whitespace-pre-wrap">{msg.text}</p>
+                        </div>
+                        {msg.sender === 'user' && <UserIcon />}
+                    </div>
+                ))}
+                {isLoading && (
+                    <div className="flex items-start gap-4"><AiIcon /><div className="rounded-lg px-4 py-3 max-w-lg bg-gray-100 text-gray-800"><div className="flex items-center space-x-2"><div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div><div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse [animation-delay:0.2s]"></div><div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse [animation-delay:0.4s]"></div></div></div></div>
+                )}
+                <div ref={chatEndRef} />
+            </div>
+            <div className="p-4 bg-gray-50 border-t">
+                {imagePreview && (<div className="relative inline-block mb-2"><img src={imagePreview} alt="Preview" className="h-20 w-20 object-cover rounded-md" /><button onClick={() => { setImageFile(null); setImagePreview(null); }} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs">&times;</button></div>)}
+                <div className="flex items-center bg-white rounded-full border shadow-sm pr-2">
+                    <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' ? handleSendMessage() : null} placeholder={isListening ? 'Listening...' : t('chatbot_placeholder')} className="flex-1 p-4 bg-transparent focus:outline-none text-gray-800" disabled={isLoading} />
+                    <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
+                    <button onClick={() => fileInputRef.current?.click()} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading || isListening}><PaperClipIcon /></button>
+                    <button onClick={handleToggleListening} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading}><MicrophoneIcon isListening={isListening} /></button>
+                    <button onClick={() => handleSendMessage()} className="p-3 bg-teal-500 text-white rounded-full hover:bg-teal-600 disabled:bg-gray-300" disabled={isLoading || (!input.trim() && !imageFile)}><SendIcon /></button>
                 </div>
             </div>
-        )}
-        <div ref={chatEndRef} />
-      </div>
-
-      <div className="p-4 bg-gray-50 border-t">
-        {imagePreview && (
-          <div className="relative inline-block mb-2">
-            <img src={imagePreview} alt="Preview" className="h-20 w-20 object-cover rounded-md" />
-            <button
-              onClick={() => { setImageFile(null); setImagePreview(null); }}
-              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs"
-            >
-              &times;
-            </button>
-          </div>
-        )}
-        <div className="flex items-center bg-white rounded-full border shadow-sm pr-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' ? handleSendMessage() : null}
-            placeholder={isListening ? 'Listening...' : t('chatbot_placeholder')}
-            className="flex-1 p-4 bg-transparent focus:outline-none text-gray-800"
-            disabled={isLoading}
-          />
-          <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
-          <button onClick={() => fileInputRef.current?.click()} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading || isListening}>
-            <PaperClipIcon />
-          </button>
-           <button onClick={handleToggleListening} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading}>
-            <MicrophoneIcon isListening={isListening} />
-          </button>
-          <button onClick={() => handleSendMessage()} className="p-3 bg-teal-500 text-white rounded-full hover:bg-teal-600 disabled:bg-gray-300" disabled={isLoading || (!input.trim() && !imageFile)}>
-            <SendIcon />
-          </button>
         </div>
-      </div>
     </div>
   );
 };
-
-export default Chatbot;

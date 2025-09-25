@@ -19,6 +19,13 @@ export interface Reminder {
   datetime: string;
 }
 
+export interface ChatSession {
+  id: string;
+  title: string;
+  messages: Message[];
+  timestamp: string;
+}
+
 export type LanguageCode = 'en' | 'hi' | 'mr' | 'bn' | 'ta' | 'te' | 'gu';
 
 export interface Translations {
