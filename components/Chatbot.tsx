@@ -66,7 +66,6 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(true);
@@ -75,6 +74,8 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  const isSpeechEnabledRef = useRef(isSpeechEnabled);
 
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
   
@@ -121,6 +122,10 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
       localStorage.setItem('nourivoxChatHistory', JSON.stringify(chatHistory));
     }
   }, [chatHistory]);
+  
+  useEffect(() => {
+    isSpeechEnabledRef.current = isSpeechEnabled;
+  }, [isSpeechEnabled]);
 
   const startNewChat = () => {
     const newSession: ChatSession = {
@@ -169,7 +174,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
   };
 
   const speakText = useCallback((text: string, langCode: LanguageCode) => {
-    if (!isSpeechEnabled || typeof speechSynthesis === 'undefined' || voices.length === 0) return;
+    if (!isSpeechEnabledRef.current || typeof speechSynthesis === 'undefined' || voicesRef.current.length === 0) return;
 
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
@@ -177,7 +182,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
     utterance.lang = targetLang;
     
     const femaleVoiceKeywords = ['female', 'girl', 'woman', 'kanya', 'zira', 'susan', 'samantha', 'femenino', 'femme', 'wanita'];
-    const languageVoices = voices.filter(v => v.lang === targetLang || v.lang.startsWith(langCode));
+    const languageVoices = voicesRef.current.filter(v => v.lang === targetLang || v.lang.startsWith(langCode));
     let selectedVoice = languageVoices.find(v => femaleVoiceKeywords.some(keyword => v.name.toLowerCase().includes(keyword)));
     if (!selectedVoice && languageVoices.length > 0) {
       selectedVoice = languageVoices[0];
@@ -187,12 +192,12 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
     }
     
     speechSynthesis.speak(utterance);
-  }, [isSpeechEnabled, voices, langMap]);
+  }, [langMap]);
   
   useEffect(() => {
     const populateVoiceList = () => {
         if (typeof speechSynthesis === 'undefined') return;
-        setVoices(speechSynthesis.getVoices());
+        voicesRef.current = speechSynthesis.getVoices();
     };
     populateVoiceList();
     if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
@@ -216,7 +221,14 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
     };
   };
 
+  const latestStateRef = useRef({ input, imageFile, imagePreview, isLoading, language, isSpeechEnabled, chatHistory, currentSessionId, navigate, t, setLanguage, setInput, setImageFile, setImagePreview, setIsLoading, setChatHistory, speakText });
+  useEffect(() => {
+    latestStateRef.current = { input, imageFile, imagePreview, isLoading, language, isSpeechEnabled, chatHistory, currentSessionId, navigate, t, setLanguage, setInput, setImageFile, setImagePreview, setIsLoading, setChatHistory, speakText };
+  });
+
   const handleSendMessage = useCallback(async (textOverride?: string) => {
+    const { input, imageFile, imagePreview, isLoading, currentSessionId, language, chatHistory, setLanguage, setChatHistory, setInput, setImageFile, setImagePreview, setIsLoading, speakText } = latestStateRef.current;
+    
     const messageText = textOverride ?? input;
     const fileToSend = imageFile;
 
@@ -234,11 +246,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
             const newTitle = isFirstMessage && messageText.trim()
                 ? messageText.substring(0, 40) + (messageText.length > 40 ? '...' : '') 
                 : session.title;
-            return {
-                ...session,
-                title: newTitle,
-                messages: [...session.messages, userMessage],
-            };
+            return { ...session, title: newTitle, messages: [...session.messages, userMessage] };
         }
         return session;
     });
@@ -287,20 +295,25 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [input, imageFile, imagePreview, isLoading, language, setLanguage, ai, systemInstruction, speakText, chatHistory, currentSessionId]);
+  }, [ai, systemInstruction]);
 
-  const getNavigationCommands = useCallback(() => ({
-    [t('home').toLowerCase()]: '/',
-    [t('about').toLowerCase()]: '/about',
-    [t('doctors').toLowerCase()]: '/doctors',
-    [t('vaccines').toLowerCase()]: '/vaccines',
-    [t('pharmacy').toLowerCase()]: '/pharmacy',
-    [t('schemes').toLowerCase()]: '/schemes',
-    [t('consultation').toLowerCase()]: '/consultation',
-    [t('dashboard').toLowerCase()]: '/dashboard',
-  }), [t]);
+  const getNavigationCommands = useCallback(() => {
+    const { t } = latestStateRef.current;
+    return {
+      [t('home').toLowerCase()]: '/',
+      [t('about').toLowerCase()]: '/about',
+      [t('doctors').toLowerCase()]: '/doctors',
+      [t('vaccines').toLowerCase()]: '/vaccines',
+      [t('pharmacy').toLowerCase()]: '/pharmacy',
+      [t('schemes').toLowerCase()]: '/schemes',
+      [t('consultation').toLowerCase()]: '/consultation',
+      [t('dashboard').toLowerCase()]: '/dashboard',
+    };
+  }, []);
 
   const handleSpeechResult = useCallback((transcript: string) => {
+    const { currentSessionId, t, speakText, language, navigate, setChatHistory } = latestStateRef.current;
+    
     const command = transcript.toLowerCase().trim().replace(/[.,?]/g, '');
     const navigationCommands = getNavigationCommands();
     
@@ -317,7 +330,6 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
 
     if (targetPath && pageName && currentSessionId) {
         const confirmationText = t('navigating_message', { page: pageName.charAt(0).toUpperCase() + pageName.slice(1) });
-        
         const aiMessage: Message = { sender: 'ai', text: confirmationText };
         
         setChatHistory(prev => prev.map(s => {
@@ -334,31 +346,72 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
     } else {
         handleSendMessage(transcript);
     }
-  }, [getNavigationCommands, handleSendMessage, language, speakText, navigate, t, currentSessionId, setChatHistory]);
+  }, [getNavigationCommands, handleSendMessage]);
 
-
+  // Effect for speech recognition initialization (runs once)
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+    if (recognitionRef.current) return;
 
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = langMap[language];
-    recognition.onresult = (event) => handleSpeechResult(event.results[0][0].transcript);
-    recognition.onerror = (event) => { console.error("Speech recognition error:", event.error); setIsListening(false); };
-    recognition.onend = () => setIsListening(false);
-    recognitionRef.current = recognition;
-    return () => recognitionRef.current?.stop();
-  }, [language, handleSpeechResult, langMap]);
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) {
+        console.warn("Speech Recognition API is not supported in this browser.");
+        return;
+    }
+
+    const instance = new SpeechRecognitionAPI();
+    instance.continuous = false;
+    instance.interimResults = false;
+    instance.onresult = (event) => handleSpeechResult(event.results[0][0].transcript);
+    
+    instance.onerror = (event: SpeechRecognitionErrorEvent) => {
+      const { t, language, speakText, currentSessionId, setChatHistory } = latestStateRef.current;
+      console.error("Speech recognition error:", event.error);
+
+      let errorMessageText: string | null = null;
+      if (event.error === 'no-speech') {
+          errorMessageText = t('speech_error_no_speech');
+      } else if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          errorMessageText = t('speech_error_not_allowed');
+      } else if (event.error === 'network') {
+          errorMessageText = t('speech_error_network');
+      }
+      
+      if (errorMessageText && currentSessionId) {
+          const errorMessage: Message = { sender: 'ai', text: errorMessageText };
+          setChatHistory(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, errorMessage] } : s));
+          speakText(errorMessageText, language);
+      }
+      
+      setIsListening(false);
+    };
+
+    instance.onend = () => setIsListening(false);
+    recognitionRef.current = instance;
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [handleSpeechResult]);
+
+  // Effect to update recognition language when it changes
+  useEffect(() => {
+    if (recognitionRef.current) {
+        recognitionRef.current.lang = langMap[language];
+    }
+  }, [language, langMap]);
 
   const handleToggleListening = () => {
+    const recognition = recognitionRef.current;
+    if (!recognition) return;
+
     if (isListening) {
-      recognitionRef.current?.stop();
+      recognition.stop();
     } else {
       setInput('');
       setIsListening(true);
-      recognitionRef.current?.start();
+      recognition.start();
     }
   };
 
