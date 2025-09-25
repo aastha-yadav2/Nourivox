@@ -53,7 +53,7 @@ declare global {
 }
 
 const Chatbot: React.FC = () => {
-  const { language, t } = useAppContext();
+  const { language, setLanguage, t } = useAppContext();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -213,6 +213,10 @@ const Chatbot: React.FC = () => {
         const receivedLang = jsonResponse.lang;
         if (languages.some(l => l.code === receivedLang)) {
           detectedLang = receivedLang;
+          // If the detected language is different, update the app's language.
+          if (receivedLang !== language) {
+            setLanguage(receivedLang);
+          }
         }
 
       } catch (e) {
@@ -234,7 +238,7 @@ const Chatbot: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [input, imageFile, imagePreview, isLoading, language, ai, systemInstruction, speakText]);
+  }, [input, imageFile, imagePreview, isLoading, language, setLanguage, ai, systemInstruction, speakText]);
 
 
   useEffect(() => {
@@ -266,7 +270,9 @@ const Chatbot: React.FC = () => {
     recognitionRef.current = recognition;
 
     return () => {
-      recognition.stop();
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
     };
   }, [language, handleSendMessage, langMap]);
 

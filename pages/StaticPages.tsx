@@ -4,10 +4,10 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { 
     InfoIcon, PhoneIcon, BookmarkIcon, CopyIcon, ExternalLinkIcon, AdvancedAITechnologyIcon, 
     OurAimIcon, ScopeIcon, CalendarIcon, PrescriptionIcon, OtcIcon, WellnessIcon, FindPharmacyIcon, LocationIcon,
-    UploadCloudIcon, CloseIcon, CheckCircleIcon, XCircleIcon, QuestionMarkCircleIcon
+    UploadCloudIcon, CloseIcon, CheckCircleIcon, XCircleIcon, QuestionMarkCircleIcon, AlertIcon, FirstAidIcon, FitnessIcon, DietIcon
 } from '../constants';
 import { useAppContext } from '../hooks/useAppContext';
-import type { PrescriptionAnalysisResult, AnalysisHistoryItem } from '../types';
+import type { PrescriptionAnalysisResult, AnalysisHistoryItem, SymptomAnalysisResult } from '../types';
 
 
 const InfoCard: React.FC<{title: string, children: React.ReactNode}> = ({ title, children }) => (
@@ -264,381 +264,487 @@ const AnalysisResultDisplay: React.FC<{result: PrescriptionAnalysisResult}> = ({
       <div>
         <h3 className="text-lg font-semibold text-blue-300 mb-2">AI Recommendations</h3>
          <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
-            <ul className="list-disc list-inside text-gray-400 space-y-1">
-              {result.recommendations.map((rec, i) => <li key={i}>{rec}</li>)}
+            <ul className="list-disc list-inside text-gray-400 space-y-1 pl-4">
+                {result.recommendations.map((rec, i) => <li key={i}>{rec}</li>)}
             </ul>
          </div>
       </div>
-      <div className="p-4 bg-red-900/50 border border-red-800 rounded-lg text-red-200 text-sm">
-        <p className="font-bold">IMPORTANT DISCLAIMER</p>
-        <p>{result.disclaimer}</p>
+       <div className="mt-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg text-red-300 text-sm">
+          <p className="font-bold">Disclaimer:</p>
+          <p>{result.disclaimer}</p>
       </div>
     </div>
 );
 
-
-const PrescriptionAnalysis: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+const PrescriptionAnalysis: React.FC = () => {
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentResult, setCurrentResult] = useState<PrescriptionAnalysisResult | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<PrescriptionAnalysisResult | null>(null);
   const [history, setHistory] = useState<AnalysisHistoryItem[]>([]);
-  const [viewingHistoryItem, setViewingHistoryItem] = useState<AnalysisHistoryItem | null>(null);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     try {
-      const storedHistory = localStorage.getItem('prescriptionHistory');
+      const storedHistory = localStorage.getItem('prescriptionAnalysisHistory');
       if (storedHistory) {
         setHistory(JSON.parse(storedHistory));
       }
     } catch (e) {
-      console.error("Failed to parse history from localStorage", e);
-      setHistory([]);
+      console.error("Failed to load history from localStorage", e);
     }
   }, []);
 
-  const resetUploader = () => {
-    setFile(null);
-    setPreview(null);
-    setError(null);
-    setCurrentResult(null);
-    setViewingHistoryItem(null);
-    if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+  const saveToHistory = (newResult: PrescriptionAnalysisResult, image: string) => {
+    const newItem: AnalysisHistoryItem = {
+      id: new Date().toISOString(),
+      timestamp: new Date().toLocaleString(),
+      imagePreview: image,
+      result: newResult,
+    };
+    const updatedHistory = [newItem, ...history].slice(0, 10); // Keep last 10
+    setHistory(updatedHistory);
+    try {
+      localStorage.setItem('prescriptionAnalysisHistory', JSON.stringify(updatedHistory));
+    } catch (e) {
+      console.error("Failed to save history to localStorage", e);
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      resetUploader();
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
+      const file = e.target.files[0];
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-          setPreview(reader.result as string);
+        setImagePreview(reader.result as string);
+        setAnalysisResult(null);
+        setError(null);
       };
-      reader.readAsDataURL(selectedFile);
+      reader.readAsDataURL(file);
     }
   };
-  
-  const handleAnalyze = async () => {
-    if (!file || !preview) return;
 
+  const fileToGenerativePart = async (file: File) => {
+    const base64EncodedDataPromise = new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+      reader.readAsDataURL(file);
+    });
+    return {
+      inlineData: { data: await base64EncodedDataPromise, mimeType: file.type },
+    };
+  };
+
+  const handleAnalyze = async () => {
+    if (!imageFile || !imagePreview) {
+      setError("Please upload an image first.");
+      return;
+    }
+    
     setIsLoading(true);
     setError(null);
-    setCurrentResult(null);
-    setViewingHistoryItem(null);
+    setAnalysisResult(null);
 
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
-      const imagePart = { inlineData: { data: preview.split(',')[1], mimeType: file.type } };
-      const textPart = { text: "Analyze this medical prescription. Extract the medicines, check for authenticity markers, and provide general recommendations." };
+      const imagePart = await fileToGenerativePart(imageFile);
+      const textPart = { text: "Analyze this prescription image. It may be handwritten or printed. Identify medicines, dosages, and frequencies. Check for authenticity markers like doctor's signature, date, and patient details. Provide recommendations and a clear disclaimer. Your information must come from verified sources like WHO or MoHFW India." };
       
-      const systemInstruction = `You are an AI assistant specializing in analyzing handwritten and printed medical prescriptions.
-- **Core Directive:** Your analysis and any provided information must strictly adhere to data from verified sources like the WHO, MoHFW India, and official drug information databases. You are a tool for digitizing and offering general guidance, NOT a medical professional.
-- **Task 1: Extract Medicines:**
-    - Carefully read the prescription image.
-    - Identify each medicine name, its dosage (e.g., 500mg), and the frequency (e.g., 1-0-1, twice a day).
-    - If any part is unreadable, state it clearly (e.g., "Dosage not clear"). Do not guess.
-- **Task 2: Authenticity Checklist:**
-    - Check for the presence of the following common markers on a valid prescription: Doctor's Name & Signature, Date of Prescription, Patient's Name.
-    - For each item, report its status as 'Present', 'Not Clear', or 'Missing'.
-    - This is a simple visual check, not a forensic verification.
-- **Task 3: Recommendations:**
-    - Provide general, safe recommendations based on standard medical practices (e.g., "Always complete the full course of antibiotics," "Do not share your medication," "Consult your doctor if you experience side effects.").
-    - These recommendations should be sourced from public health guidelines (e.g., from WHO or MoHFW).
-- **Task 4: Disclaimer:**
-    - ALWAYS include a disclaimer stating that this AI analysis is not a substitute for professional medical advice, the interpretation may contain errors, and the user must consult their doctor and pharmacist before taking any medication.`;
-
       const responseSchema = {
-        type: Type.OBJECT,
-        properties: {
-          medicines: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                name: { type: Type.STRING },
-                dosage: { type: Type.STRING },
-                frequency: { type: Type.STRING },
+          type: Type.OBJECT,
+          properties: {
+              medicines: {
+                  type: Type.ARRAY,
+                  items: {
+                      type: Type.OBJECT,
+                      properties: {
+                          name: { type: Type.STRING },
+                          dosage: { type: Type.STRING },
+                          frequency: { type: Type.STRING },
+                      },
+                      required: ["name", "dosage", "frequency"],
+                  }
               },
-              required: ['name', 'dosage', 'frequency'],
-            }
-          },
-          authenticity_checks: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                item: { type: Type.STRING },
-                status: { type: Type.STRING, enum: ['Present', 'Not Clear', 'Missing'] },
+              authenticity_checks: {
+                  type: Type.ARRAY,
+                  items: {
+                      type: Type.OBJECT,
+                      properties: {
+                          item: { type: Type.STRING },
+                          status: { type: Type.STRING, enum: ['Present', 'Not Clear', 'Missing'] }
+                      },
+                      required: ["item", "status"],
+                  }
               },
-              required: ['item', 'status'],
-            }
+              recommendations: { type: Type.ARRAY, items: { type: Type.STRING } },
+              disclaimer: { type: Type.STRING }
           },
-          recommendations: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING }
-          },
-          disclaimer: { type: Type.STRING },
-        },
-        required: ['medicines', 'authenticity_checks', 'recommendations', 'disclaimer'],
+          required: ["medicines", "authenticity_checks", "recommendations", "disclaimer"]
       };
 
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: { parts: [imagePart, textPart] },
-        config: { 
-            systemInstruction: systemInstruction,
+        config: {
+            systemInstruction: "You are an AI assistant for analyzing medical prescriptions. Your analysis must be based on information from reliable sources like the WHO and MoHFW India. You must not provide a definitive 'real' or 'fake' judgment but instead check for common elements of a valid prescription.",
             responseMimeType: "application/json",
             responseSchema: responseSchema,
-        },
+        }
       });
-
-      const parsedResult = JSON.parse(response.text) as PrescriptionAnalysisResult;
-      setCurrentResult(parsedResult);
-
-      const newHistoryItem: AnalysisHistoryItem = {
-        id: Date.now().toString(),
-        timestamp: new Date().toISOString(),
-        imagePreview: preview,
-        result: parsedResult
-      };
-
-      const updatedHistory = [newHistoryItem, ...history].slice(0, 10); // Keep last 10
-      setHistory(updatedHistory);
-      localStorage.setItem('prescriptionHistory', JSON.stringify(updatedHistory));
+      
+      const result = JSON.parse(response.text);
+      setAnalysisResult(result);
+      saveToHistory(result, imagePreview);
 
     } catch (err) {
-      console.error("Analysis Error:", err);
-      setError("Sorry, I was unable to analyze the prescription. Please try again with a clearer image.");
+      console.error("Error analyzing prescription:", err);
+      setError("Failed to analyze the prescription. The AI service may be temporarily unavailable or the image could not be processed.");
     } finally {
       setIsLoading(false);
     }
   };
-
-  const currentViewResult = viewingHistoryItem ? viewingHistoryItem.result : currentResult;
+  
+  const handleClear = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setAnalysisResult(null);
+    setError(null);
+    if(fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   return (
-    <div>
-        <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-white">Prescription Analysis</h1>
-            <button onClick={onBack} className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-md">&larr; Back to Pharmacy</button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            <div className="lg:col-span-3 bg-gray-800/50 border border-gray-700 rounded-xl p-6 h-full">
-                {currentViewResult ? (
-                    <div>
-                        <AnalysisResultDisplay result={currentViewResult} />
-                        <div className="text-center pt-6 mt-6 border-t border-gray-700">
-                             <button onClick={resetUploader} className="px-6 py-2 font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">Analyze a New Prescription</button>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="flex flex-col h-full">
-                        <h2 className="text-xl font-semibold text-white mb-4">Upload Prescription</h2>
-                        <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
-                        <div 
-                          onClick={() => fileInputRef.current?.click()}
-                          className="flex-grow border-2 border-dashed border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-blue-500 hover:bg-gray-700/50 flex flex-col justify-center items-center"
-                        >
-                          {preview ? (
-                            <img src={preview} alt="Prescription Preview" className="max-h-64 w-auto rounded-lg" />
-                          ) : (
-                            <>
-                              <UploadCloudIcon />
-                              <p className="mt-2 text-gray-300">Click to upload or drag & drop</p>
-                              <p className="text-sm text-gray-500">PNG, JPG, JPEG up to 10MB</p>
-                            </>
-                          )}
-                        </div>
-                         {error && <p className="text-center text-red-400 bg-red-500/20 p-3 mt-4 rounded-lg">{error}</p>}
-                        <div className="mt-6 text-center">
-                            <button onClick={handleAnalyze} className="w-full px-6 py-3 text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:bg-gray-500 disabled:cursor-not-allowed" disabled={isLoading || !file}>
-                                {isLoading ? 'Analyzing...' : 'Submit for Analysis'}
-                            </button>
-                        </div>
-                    </div>
-                )}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-1">
+        <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-700 space-y-4">
+            <h2 className="text-2xl font-bold text-white">Upload Prescription</h2>
+            <div 
+              className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-teal-500 bg-gray-800"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {imagePreview ? (
+                <img src={imagePreview} alt="Prescription preview" className="mx-auto max-h-48 rounded-md" />
+              ) : (
+                <>
+                  <UploadCloudIcon />
+                  <p className="mt-2 text-sm text-gray-400">Click to upload or drag & drop</p>
+                  <p className="text-xs text-gray-500">PNG, JPG, JPEG up to 5MB</p>
+                </>
+              )}
             </div>
+            <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/png, image/jpeg" className="hidden" />
 
-            <div className="lg:col-span-2 bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-                <h2 className="text-xl font-semibold text-white mb-4">Analysis History</h2>
-                {history.length > 0 ? (
-                    <ul className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-                        {history.map(item => (
-                            <li key={item.id} className="bg-gray-800 p-3 rounded-lg border border-gray-600 flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm text-gray-300 font-semibold">Analyzed on:</p>
-                                    <p className="text-xs text-gray-400">{new Date(item.timestamp).toLocaleString()}</p>
-                                </div>
-                                <button onClick={() => setViewingHistoryItem(item)} className="px-3 py-1 text-xs font-semibold text-teal-300 bg-teal-500/20 hover:bg-teal-500/40 rounded-full">View</button>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <div className="text-center text-gray-500 py-10">
-                        <p>No past analyses found.</p>
-                        <p className="text-sm">Your analysis history will appear here.</p>
-                    </div>
-                )}
+            <div className="flex gap-4">
+              <button onClick={handleAnalyze} className="w-full py-2 px-4 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:bg-gray-500" disabled={isLoading || !imageFile}>
+                {isLoading ? 'Analyzing...' : 'Analyze Prescription'}
+              </button>
+              <button onClick={handleClear} className="w-full py-2 px-4 bg-gray-600 text-white rounded-md hover:bg-gray-500">
+                Clear
+              </button>
             </div>
         </div>
+        <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-700 mt-8">
+            <h3 className="text-xl font-bold text-white mb-4">Analysis History</h3>
+            <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
+                {history.length > 0 ? history.map(item => (
+                    <div key={item.id} className="flex items-center p-2 rounded-lg bg-gray-800 hover:bg-gray-700/70 cursor-pointer" onClick={() => { setAnalysisResult(item.result); setImagePreview(item.imagePreview)}}>
+                        <img src={item.imagePreview} className="w-10 h-10 rounded-md object-cover mr-4" />
+                        <div>
+                            <p className="text-sm font-semibold text-gray-200">Analysis</p>
+                            <p className="text-xs text-gray-400">{item.timestamp}</p>
+                        </div>
+                    </div>
+                )) : <p className="text-sm text-gray-500">No history yet.</p>}
+            </div>
+        </div>
+      </div>
+      
+      <div className="lg:col-span-2 bg-gray-800/50 p-6 rounded-lg border border-gray-700">
+        <h2 className="text-2xl font-bold text-white mb-4">Analysis Results</h2>
+        {isLoading && (
+            <div className="flex justify-center items-center h-full">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-400 mx-auto"></div>
+                    <p className="mt-4 text-gray-300">AI is analyzing your prescription...</p>
+                </div>
+            </div>
+        )}
+        {error && <p className="text-center text-red-400 bg-red-500/20 p-4 rounded-lg">{error}</p>}
+        {analysisResult && <AnalysisResultDisplay result={analysisResult} />}
+        {!isLoading && !error && !analysisResult && <p className="text-center text-gray-500">Upload a prescription image to begin analysis.</p>}
+      </div>
     </div>
   );
 };
 
 
-export const PharmacyPage: React.FC = () => {
-    const [view, setView] = useState<'main' | 'analysis'>('main');
-    
-    const pharmacyOptions = [
-        { id: 'upload', icon: <PrescriptionIcon />, title: 'Upload Prescription', description: 'AI-powered analysis of your prescription.' },
-        { id: 'otc', icon: <OtcIcon />, title: 'Over-the-Counter', description: 'Shop for common health and wellness products.' },
-        { id: 'wellness', icon: <WellnessIcon />, title: 'Wellness Products', description: 'Explore vitamins, supplements, and personal care items.' },
-        { id: 'find', icon: <FindPharmacyIcon />, title: 'Find Nearby Pharmacy', description: 'Locate partner pharmacies in your area.' },
-    ];
+const SymptomAnalysisResultDisplay: React.FC<{ result: SymptomAnalysisResult }> = ({ result }) => (
+    <div className="space-y-6 animate-fade-in">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                <h3 className="flex items-center text-lg font-semibold text-blue-300 mb-2"><InfoIcon /> <span className="ml-2">Health Guidance</span></h3>
+                <ul className="list-disc list-inside text-gray-400 space-y-1 pl-4 text-sm">
+                    {result.health_guidance.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+            </div>
+            <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                <h3 className="flex items-center text-lg font-semibold text-red-300 mb-2"><FirstAidIcon /> <span className="ml-2">Emergency First Aid</span></h3>
+                <ul className="list-disc list-inside text-gray-400 space-y-1 pl-4 text-sm">
+                    {result.first_aid.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+            </div>
+            <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                <h3 className="flex items-center text-lg font-semibold text-green-300 mb-2"><FitnessIcon /> <span className="ml-2">Fitness Plan</span></h3>
+                <ul className="list-disc list-inside text-gray-400 space-y-1 pl-4 text-sm">
+                    {result.fitness_plan.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+            </div>
+            <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                <h3 className="flex items-center text-lg font-semibold text-yellow-300 mb-2"><DietIcon /> <span className="ml-2">Diet Plan</span></h3>
+                <ul className="list-disc list-inside text-gray-400 space-y-1 pl-4 text-sm">
+                    {result.diet_plan.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+            </div>
+        </div>
+        <div className="mt-6 p-4 bg-red-900/30 border border-red-500/50 rounded-lg text-red-300 text-sm">
+            <p className="font-bold">Disclaimer:</p>
+            <p>{result.disclaimer}</p>
+        </div>
+    </div>
+);
 
-    const handleCardClick = (id: string) => {
-        if (id === 'upload') {
-            setView('analysis');
-        } else {
-            console.log(`Card clicked: ${id}`);
+
+const SymptomAnalysis: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [analysisResult, setAnalysisResult] = useState<SymptomAnalysisResult | null>(null);
+    const [selectedConcern, setSelectedConcern] = useState<string | null>(null);
+
+    const handleAnalyze = async (concern: string) => {
+        setIsLoading(true);
+        setError(null);
+        setAnalysisResult(null);
+        setSelectedConcern(concern);
+
+        try {
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+            const prompt = `Provide health guidance, emergency first aid steps, a general fitness plan, and a diet plan for a person experiencing symptoms of a "${concern}". All information provided MUST be sourced from the World Health Organization (WHO), MoHFW India, or other verified government health agencies. Do not use unverified sources. The tone should be helpful and informative, but not alarming. Include a clear disclaimer that this is not a substitute for professional medical advice and to call emergency services for any real medical emergency.`;
+
+            const responseSchema = {
+                type: Type.OBJECT,
+                properties: {
+                    health_guidance: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    first_aid: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    fitness_plan: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    diet_plan: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    disclaimer: { type: Type.STRING }
+                },
+                required: ["health_guidance", "first_aid", "fitness_plan", "diet_plan", "disclaimer"]
+            };
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: responseSchema
+                }
+            });
+
+            const result = JSON.parse(response.text);
+            setAnalysisResult(result);
+        } catch (err) {
+            console.error("Error analyzing symptom:", err);
+            setError("Failed to generate guidance. The AI service may be temporarily unavailable.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    if (view === 'analysis') {
+    return (
+        <div>
+            <button onClick={onBack} className="mb-6 text-sm font-semibold text-teal-400 hover:text-teal-300">&larr; Back to Pharmacy</button>
+             <div className="bg-yellow-900/30 border border-yellow-500/50 text-yellow-300 p-4 rounded-lg mb-6 text-sm flex items-center">
+                <AlertIcon />
+                <div className="ml-3">
+                    <p><strong>For informational purposes only.</strong> This tool does not provide medical advice.</p>
+                    <p><strong>In case of a medical emergency, call 108 or your local emergency number immediately.</strong></p>
+                </div>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-1">
+                     <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-700">
+                        <h3 className="text-xl font-bold text-white mb-4">Select a Concern</h3>
+                        <div className="space-y-3">
+                            <button onClick={() => handleAnalyze('Suspected Heart Attack')} disabled={isLoading} className="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50">Suspected Heart Attack</button>
+                            <button onClick={() => handleAnalyze('Asthma Attack')} disabled={isLoading} className="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50">Asthma Attack</button>
+                            <button onClick={() => handleAnalyze('Severe Allergic Reaction')} disabled={isLoading} className="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50">Severe Allergic Reaction</button>
+                            <button onClick={() => handleAnalyze('Minor Burn')} disabled={isLoading} className="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50">Minor Burn</button>
+                            <button onClick={() => handleAnalyze('Fever and Flu-like Symptoms')} disabled={isLoading} className="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50">Fever and Flu-like Symptoms</button>
+                        </div>
+                    </div>
+                </div>
+                <div className="lg:col-span-2 bg-gray-800/50 p-6 rounded-lg border border-gray-700">
+                    <h2 className="text-2xl font-bold text-white mb-4">
+                        {selectedConcern ? `Guidance for ${selectedConcern}` : 'Wellness Guidance'}
+                    </h2>
+                    {isLoading && (
+                        <div className="flex justify-center items-center h-full">
+                            <div className="text-center">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-400 mx-auto"></div>
+                                <p className="mt-4 text-gray-300">AI is generating guidance...</p>
+                            </div>
+                        </div>
+                    )}
+                    {error && <p className="text-center text-red-400 bg-red-500/20 p-4 rounded-lg">{error}</p>}
+                    {analysisResult && <SymptomAnalysisResultDisplay result={analysisResult} />}
+                    {!isLoading && !error && !analysisResult && <p className="text-center text-gray-500">Select a concern to see AI-powered guidance.</p>}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+export const PharmacyPage: React.FC = () => {
+    const [activeView, setActiveView] = useState<'main' | 'prescription' | 'symptom'>('main');
+
+    const PharmacyCard: React.FC<{ icon: React.ReactNode, title: string, description: string, onClick: () => void }> = ({ icon, title, description, onClick }) => (
+        <div 
+            onClick={onClick}
+            className="bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-lg hover:border-teal-500/80 hover:shadow-teal-900/40 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+        >
+            <div className="flex items-center text-teal-400 mb-4">
+                {icon}
+                <h3 className="text-xl font-bold text-white ml-4">{title}</h3>
+            </div>
+            <p className="text-gray-400 text-sm">{description}</p>
+        </div>
+    );
+
+    if (activeView === 'prescription') {
         return (
             <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-                <PrescriptionAnalysis onBack={() => setView('main')} />
+                 <button onClick={() => setActiveView('main')} className="mb-6 text-sm font-semibold text-teal-400 hover:text-teal-300">&larr; Back to Pharmacy</button>
+                 <PrescriptionAnalysis />
             </main>
-        );
+        )
+    }
+    
+    if (activeView === 'symptom') {
+        return (
+             <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+                <SymptomAnalysis onBack={() => setActiveView('main')} />
+            </main>
+        )
     }
 
     return (
         <main className="container mx-auto p-4 sm:p-6 lg:p-8">
             <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold text-white mb-4">Nourivox Pharmacy</h1>
-                <p className="text-lg text-gray-400">Your one-stop shop for all your healthcare needs.</p>
+                <h1 className="text-4xl font-bold text-white mb-4">Pharmacy Services</h1>
+                <p className="text-lg text-gray-400">Your one-stop destination for prescriptions, health products, and more.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {pharmacyOptions.map((option, index) => (
-                    <button 
-                        key={index} 
-                        onClick={() => handleCardClick(option.id)}
-                        className="bg-gray-800/50 border border-gray-700 rounded-xl p-8 text-center flex flex-col items-center hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-900/40 transition-all text-left"
-                    >
-                        <div className="w-16 h-16 rounded-full flex items-center justify-center bg-blue-500/20 text-blue-400 mb-6">
-                            {option.icon}
-                        </div>
-                        <h3 className="text-xl font-semibold text-white mb-2">{option.title}</h3>
-                        <p className="text-gray-400 flex-grow">{option.description}</p>
-                        <span className="mt-6 text-blue-400 font-semibold self-center">
-                            {option.id === 'upload' ? 'Start Analysis' : 'Explore'} &rarr;
-                        </span>
-                    </button>
-                ))}
-            </div>
-        </main>
-    );
-};
-
-
-export const SchemesPage: React.FC = () => {
-    const { t } = useAppContext();
-    const schemes = [
-        { name: "Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (AB-PMJAY)", description: "Provides a health cover of Rs. 5 lakhs per family per year for secondary and tertiary care hospitalization across public and private empanelled hospitals.", officialLink: "https://pmjay.gov.in/" },
-        { name: "Pradhan Mantri Surakshit Matritva Abhiyan (PMSMA)", description: "Aims to provide assured, comprehensive and quality antenatal care, free of cost, universally to all pregnant women on the 9th of every month.", officialLink: "https://pmsma.nhp.gov.in/" },
-        { name: "National Health Mission (NHM)", description: "Envisages achievement of universal access to equitable, affordable & quality health care services, accountable and responsive to people's needs.", officialLink: "https://nhm.gov.in/" },
-        { name: "Janani Shishu Suraksha Karyakram (JSSK)", description: "Entitles all pregnant women delivering in public health institutions to absolutely free and no expense delivery, including caesarean section.", officialLink: "https://nhm.gov.in/index1.php?lang=1&level=2&sublinkid=841&lid=23" }
-    ];
-
-    const [copied, setCopied] = useState('');
-    const handleCopy = (text: string) => {
-        navigator.clipboard.writeText(text);
-        setCopied(text);
-        setTimeout(() => setCopied(''), 2000);
-    };
-
-    return (
-        <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold text-white mb-4">Government Health Schemes</h1>
-                <p className="text-lg text-gray-400">Information on key health initiatives by the Government of India.</p>
-            </div>
-            <div className="space-y-6">
-                {schemes.map((scheme, index) => (
-                    <div key={index} className="bg-gray-800/50 border border-gray-700 p-6 rounded-xl shadow-md">
-                        <div className="flex items-start">
-                            <InfoIcon />
-                            <div>
-                                <h3 className="text-xl font-bold text-teal-300">{scheme.name}</h3>
-                                <p className="text-gray-400 mt-2">{scheme.description}</p>
-                            </div>
-                        </div>
-                        <div className="mt-4 pt-4 border-t border-gray-700 flex justify-end items-center space-x-4">
-                            <button onClick={() => handleCopy(scheme.name)} className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
-                                <CopyIcon /> <span className="ml-1.5">{copied === scheme.name ? 'Copied!' : 'Copy Name'}</span>
-                            </button>
-                            <a href={scheme.officialLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm font-semibold text-blue-400 hover:text-blue-300">
-                                Official Site <ExternalLinkIcon />
-                            </a>
-                        </div>
-                    </div>
-                ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <PharmacyCard
+                    icon={<PrescriptionIcon />}
+                    title="Analyze Prescription"
+                    description="Upload a handwritten or printed prescription to get an AI-powered analysis of medicines and authenticity."
+                    onClick={() => setActiveView('prescription')}
+                />
+                 <PharmacyCard
+                    icon={<OtcIcon />}
+                    title="OTC Products"
+                    description="Browse and get information on over-the-counter health products. (Coming Soon)"
+                    onClick={() => {}}
+                />
+                <PharmacyCard
+                    icon={<WellnessIcon />}
+                    title="Symptom Guidance"
+                    description="Get AI-powered guidance for common health concerns, including first aid, diet, and fitness plans."
+                    onClick={() => setActiveView('symptom')}
+                />
+                 <PharmacyCard
+                    icon={<FindPharmacyIcon />}
+                    title="Find a Pharmacy"
+                    description="Locate nearby pharmacies to fulfill your prescription needs. (Coming Soon)"
+                    onClick={() => {}}
+                />
             </div>
         </main>
     );
 };
+
+export const SchemesPage: React.FC = () => (
+  <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+    <InfoCard title="Government Health Schemes">
+      <p>Information about various government-sponsored health schemes and insurance programs designed to make healthcare more accessible and affordable for all citizens.</p>
+      
+      <div className="border-t border-gray-700 pt-4 mt-4">
+        <h3 className="text-xl font-semibold text-white mb-2">Ayushman Bharat (PM-JAY)</h3>
+        <p>A flagship scheme providing health coverage of up to ₹5 lakh per family per year for secondary and tertiary care hospitalization.</p>
+      </div>
+
+      <div className="border-t border-gray-700 pt-4 mt-4">
+        <h3 className="text-xl font-semibold text-white mb-2">Janani Shishu Suraksha Karyakram (JSSK)</h3>
+        <p>Entitles all pregnant women delivering in public health institutions to absolutely free and no-expense delivery, including Caesarean section.</p>
+      </div>
+    </InfoCard>
+  </main>
+);
 
 export const HelplinePage: React.FC = () => {
-    const helplines = [
-        { name: "National Health Helpline", number: "1800-180-1104" },
-        { name: "Medical Emergency", number: "108 / 102" },
-        { name: "COVID-19 Helpline", number: "1075" },
-        { name: "Mental Health Helpline (KIRAN)", number: "1800-599-0019" },
-        { name: "Senior Citizen Helpline", number: "14567" },
-        { name: "National AIDS Helpline", number: "1097" },
-        { name: "Child Helpline", number: "1098" },
-        { name: "Uttarakhand State Health Helpline", number: "1800180801" },
-    ];
+  const helplines = [
+    { name: 'National Health Helpline', number: '1800-180-1104' },
+    { name: 'KIRAN Mental Health Helpline', number: '1800-599-0019' },
+    { name: 'National Emergency Number', number: '112' },
+    { name: 'Medical Ambulance', number: '108' },
+    { name: "Women's Helpline", number: '1091' },
+    { name: "Child Helpline", number: '1098' },
+  ];
+  const [copied, setCopied] = useState('');
 
-    const [copied, setCopied] = useState('');
-    const handleCopy = (number: string) => {
-        navigator.clipboard.writeText(number);
-        setCopied(number);
-        setTimeout(() => setCopied(''), 2000);
-    };
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(text);
+    setTimeout(() => setCopied(''), 2000);
+  };
 
-    return (
-        <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold text-white mb-4">National Health Helplines</h1>
-                <p className="text-lg text-gray-400">Important contact numbers for health-related emergencies and information.</p>
-            </div>
-            <div className="max-w-2xl mx-auto">
-                <div className="bg-gray-800/50 border border-gray-700 rounded-xl shadow-lg">
-                    <ul className="divide-y divide-gray-700">
-                        {helplines.map((line, index) => (
-                            <li key={index} className="p-4 flex items-center justify-between">
-                                <div className="flex items-center">
-                                    <PhoneIcon />
-                                    <span className="ml-3 text-white font-semibold">{line.name}</span>
-                                </div>
-                                <div className="flex items-center space-x-4">
-                                    <a href={`tel:${line.number}`} className="font-mono text-lg text-teal-300 tracking-wider">{line.number}</a>
-                                    <button onClick={() => handleCopy(line.number)} className="p-2 text-gray-400 hover:text-white rounded-md bg-gray-700/50 hover:bg-gray-700 transition-colors" title="Copy number">
-                                        {copied === line.number ? <BookmarkIcon /> : <CopyIcon />}
-                                    </button>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
+  return (
+    <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-white mb-4">Emergency Helplines</h1>
+        <p className="text-lg text-gray-400">Important contact numbers for health emergencies and support.</p>
+      </div>
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-gray-800/50 border border-gray-700 rounded-xl shadow-lg">
+          <ul className="divide-y divide-gray-700">
+            {helplines.map((line, index) => (
+              <li key={index} className="p-4 md:p-6 flex items-center justify-between group">
+                <div className="flex items-center">
+                  <div className="p-3 bg-gray-700/50 rounded-full mr-4">
+                    <PhoneIcon />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">{line.name}</h3>
+                    <a href={`tel:${line.number}`} className="text-teal-400 font-mono text-lg hover:underline">{line.number}</a>
+                  </div>
                 </div>
-            </div>
-        </main>
-    );
+                <button 
+                  onClick={() => copyToClipboard(line.number)}
+                  className="p-3 rounded-full bg-gray-700 text-gray-400 hover:bg-teal-600 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                  aria-label={`Copy ${line.name} number`}
+                >
+                  {copied === line.number ? <CheckCircleIcon /> : <CopyIcon />}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </main>
+  );
 };

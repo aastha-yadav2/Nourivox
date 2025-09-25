@@ -44,3 +44,11 @@ export interface AnalysisHistoryItem {
   imagePreview: string; // base64 data URL
   result: PrescriptionAnalysisResult;
 }
+
+export interface SymptomAnalysisResult {
+  health_guidance: string[];
+  first_aid: string[];
+  fitness_plan: string[];
+  diet_plan: string[];
+  disclaimer: string;
+}
