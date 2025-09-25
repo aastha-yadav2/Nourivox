@@ -10,6 +10,7 @@ export interface Appointment {
   doctor: string;
   date: string;
   time: string;
+  notified?: boolean;
 }
 
 export interface Reminder {
