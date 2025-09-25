@@ -954,9 +954,31 @@ export const SchemesPage: React.FC = () => (
     <InfoCard title="Government Health Schemes">
       <p>Information about various government-sponsored health schemes and insurance programs designed to make healthcare more accessible and affordable for all citizens.</p>
       
-      <div className="border-t border-gray-700 pt-4 mt-4">
+      <div className="border-t border-gray-700 pt-4 mt-4 space-y-3">
         <h3 className="text-xl font-semibold text-white mb-2">Ayushman Bharat (PM-JAY)</h3>
-        <p>A flagship scheme providing health coverage of up to ₹5 lakh per family per year for secondary and tertiary care hospitalization.</p>
+        <p className="text-gray-400">A flagship scheme providing health coverage of up to ₹5 lakh per family per year for secondary and tertiary care hospitalization.</p>
+        
+        <h4 className="text-lg font-semibold text-gray-200 pt-2">1. Eligibility Criteria:</h4>
+        <ul className="list-disc list-inside text-gray-400 pl-4 text-sm space-y-1">
+          <li>Families identified under the Socio-Economic Caste Census (SECC) 2011.</li>
+          <li>Families holding RSBY (Rashtriya Swasthya Bima Yojana) cards.</li>
+          <li>Specific occupational categories of unorganized workers (e.g., ragpickers, domestic workers).</li>
+          <li>Note: There is no age limit for eligibility.</li>
+        </ul>
+
+        <h4 className="text-lg font-semibold text-gray-200 pt-2">2. Documents Required for Ayushman Card Application:</h4>
+        <p className="text-gray-400 text-sm">To apply for your Ayushman Card, you generally need:</p>
+        <ul className="list-disc list-inside text-gray-400 pl-4 text-sm space-y-1">
+          <li><strong>Identity Proof:</strong> Aadhaar card, Voter ID, PAN card, Passport, or Driving License.</li>
+          <li><strong>Address Proof:</strong> Ration Card, Aadhaar card, Utility Bill, or any Government-issued address proof.</li>
+          <li><strong>Family Details:</strong> Names and age of family members (usually from SECC or ration card).</li>
+          <li><strong>Photographs:</strong> A recent passport-size photo may be required at some CSCs.</li>
+        </ul>
+
+        <h4 className="text-lg font-semibold text-gray-200 pt-2">3. How to Apply:</h4>
+        <ul className="list-disc list-inside text-gray-400 pl-4 text-sm space-y-1">
+          <li>Visit a Common Service Center (CSC) or a PM-JAY helpdesk at an empanelled hospital to verify your eligibility and get your card issued.</li>
+        </ul>
       </div>
 
       <div className="border-t border-gray-700 pt-4 mt-4">
