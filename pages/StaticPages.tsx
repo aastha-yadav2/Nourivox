@@ -7,7 +7,7 @@ import {
     UploadCloudIcon, CloseIcon, CheckCircleIcon, XCircleIcon, QuestionMarkCircleIcon, AlertIcon, FirstAidIcon, FitnessIcon, DietIcon
 } from '../constants';
 import { useAppContext } from '../hooks/useAppContext';
-import type { PrescriptionAnalysisResult, AnalysisHistoryItem, SymptomAnalysisResult } from '../types';
+import type { PrescriptionAnalysisResult, AnalysisHistoryItem, SymptomAnalysisResult, PharmacyInfo } from '../types';
 
 
 const InfoCard: React.FC<{title: string, children: React.ReactNode}> = ({ title, children }) => (
@@ -608,9 +608,78 @@ const SymptomAnalysis: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     );
 };
 
+const pharmacyData: PharmacyInfo[] = [
+  {
+    "name": "Rewati Nursing Home",
+    "link": "https://jsdl.in/DT-99UIQ2QUA62",
+    "address": "94, Dharampur -1, Adarsh Nagar, Adarsh Nagar-248001 (Adarsh Nagar)",
+    "contact": "08485920627"
+  },
+  {
+    "name": "Pink Clinic - Best Gynecologist & Obstetrician Dehradun",
+    "link": "https://jsdl.in/DT-99Q143AWGQP",
+    "address": "Bhagwati Tower, Opp-Sky Garden, Ring Road, Jogiwala, KTY-248001 (Opp-Sky Garden)",
+    "contact": "07041824029"
+  },
+  {
+    "name": "Dr Rahul Vashistha (Raksheeta Child Care Clinic)",
+    "link": "https://jsdl.in/DT-99UUQFXAIB2",
+    "address": "138, Old Nehru Colony, Dharampur, Dehradun - 248001 (Near Indian Overseas Bank, Shiv Mandir)",
+    "contact": null
+  },
+  {
+    "name": "Vardan Child Health Clinic",
+    "link": "https://jsdl.in/DT-99R5WR2EJGT",
+    "address": "Officer Colony Gate Number 2, Opposite Rathi Sweet, Doon Officer Colony, Opposite Rathi Sweets Shop, Dehradun City-248001 (Opposite Rathi Sweet, Doon Officer Colony)",
+    "contact": null
+  },
+  {
+    "name": "Himalayan Hospital",
+    "link": null,
+    "address": "Jolly Grant, Swami Ram Nagar, Jolly Grant, Dehradun, Uttarakhand - 248016",
+    "contact": null
+  }
+];
+
+const FindPharmacyView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+    return (
+        <div>
+            <button onClick={onBack} className="mb-6 text-sm font-semibold text-teal-400 hover:text-teal-300">&larr; Back to Pharmacy</button>
+            <div className="text-center mb-12">
+                <h1 className="text-4xl font-bold text-white mb-4">Find a Pharmacy or Clinic</h1>
+                <p className="text-lg text-gray-400">Nearby healthcare providers in your area.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {pharmacyData.map((pharm, index) => (
+                    <div key={index} className="bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-lg flex flex-col justify-between">
+                        <div>
+                            <h3 className="text-xl font-bold text-white mb-2">{pharm.name}</h3>
+                            <div className="flex items-start text-gray-400 mb-4">
+                                <LocationIcon />
+                                <p className="ml-2 text-sm">{pharm.address}</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4 mt-4 border-t border-gray-700 pt-4">
+                            {pharm.contact && (
+                                <a href={`tel:${pharm.contact}`} className="flex-1 text-center py-2 px-4 bg-teal-600 text-white rounded-md hover:bg-teal-700 text-sm font-semibold">
+                                    Call Now
+                                </a>
+                            )}
+                            {pharm.link && (
+                                <a href={pharm.link} target="_blank" rel="noopener noreferrer" className="flex-1 text-center py-2 px-4 bg-gray-600 text-white rounded-md hover:bg-gray-500 text-sm font-semibold flex items-center justify-center">
+                                    More Info <ExternalLinkIcon />
+                                </a>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 export const PharmacyPage: React.FC = () => {
-    const [activeView, setActiveView] = useState<'main' | 'prescription' | 'symptom'>('main');
+    const [activeView, setActiveView] = useState<'main' | 'prescription' | 'symptom' | 'find_pharmacy'>('main');
 
     const PharmacyCard: React.FC<{ icon: React.ReactNode, title: string, description: string, onClick: () => void }> = ({ icon, title, description, onClick }) => (
         <div 
@@ -638,6 +707,14 @@ export const PharmacyPage: React.FC = () => {
         return (
              <main className="container mx-auto p-4 sm:p-6 lg:p-8">
                 <SymptomAnalysis onBack={() => setActiveView('main')} />
+            </main>
+        )
+    }
+
+    if (activeView === 'find_pharmacy') {
+        return (
+             <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+                <FindPharmacyView onBack={() => setActiveView('main')} />
             </main>
         )
     }
@@ -670,8 +747,8 @@ export const PharmacyPage: React.FC = () => {
                  <PharmacyCard
                     icon={<FindPharmacyIcon />}
                     title="Find a Pharmacy"
-                    description="Locate nearby pharmacies to fulfill your prescription needs. (Coming Soon)"
-                    onClick={() => {}}
+                    description="Locate nearby pharmacies and clinics to fulfill your prescription needs."
+                    onClick={() => setActiveView('find_pharmacy')}
                 />
             </div>
         </main>

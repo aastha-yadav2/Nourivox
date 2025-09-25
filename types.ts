@@ -52,3 +52,10 @@ export interface SymptomAnalysisResult {
   diet_plan: string[];
   disclaimer: string;
 }
+
+export interface PharmacyInfo {
+  name: string;
+  link: string | null;
+  address: string;
+  contact: string | null;
+}
