@@ -981,10 +981,66 @@ export const SchemesPage: React.FC = () => (
         </ul>
       </div>
 
+      <div className="border-t border-gray-700 pt-4 mt-4 space-y-3">
+        <h3 className="text-xl font-semibold text-white mb-2">Empanelled Hospitals (PM-JAY / AAUY in Uttarakhand)</h3>
+        <ul className="list-disc list-inside text-gray-400 pl-4 text-sm space-y-1">
+          <li><strong>Coverage:</strong> All 13 districts of Uttarakhand have empanelled hospitals — 310 hospitals total (both govt & private), with an average of 6 specialties each.</li>
+          <li><strong>Example:</strong> Medicare Hospital, Dehradun is an empanelled facility offering diverse services under Ayushman — doctor fees, diagnostics, and the full ₹5 lakh cover. You can verify at the hospital using your Ayushman Card.</li>
+        </ul>
+      </div>
+      
+      <div className="border-t border-gray-700 pt-4 mt-4">
+        <h3 className="text-xl font-semibold text-white mb-4">Schemes at a Glance</h3>
+        <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-gray-400">
+                <thead className="text-xs text-gray-300 uppercase bg-gray-700/50">
+                    <tr>
+                        <th scope="col" className="px-4 py-3">Scheme</th>
+                        <th scope="col" className="px-4 py-3">Launch Date</th>
+                        <th scope="col" className="px-4 py-3">Eligibility</th>
+                        <th scope="col" className="px-4 py-3">Benefits</th>
+                        <th scope="col" className="px-4 py-3">How to Verify / Apply</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr className="border-b border-gray-700 hover:bg-gray-800/60">
+                        <td className="px-4 py-4 font-medium text-white">PM-JAY (central)</td>
+                        <td className="px-4 py-4">23 Sept 2018</td>
+                        <td className="px-4 py-4">SECC 2011 bottom 40% households</td>
+                        <td className="px-4 py-4">₹5 lakh cashless, pre-existing cover, portable</td>
+                        <td className="px-4 py-4">Through PM-JAY portal; ask PHC/CHC staff</td>
+                    </tr>
+                    <tr className="border-b border-gray-700 hover:bg-gray-800/60">
+                        <td className="px-4 py-4 font-medium text-white">AAUY (state-level)</td>
+                        <td className="px-4 py-4">Dec 2018</td>
+                        <td className="px-4 py-4">Uttarakhand residents, SECC-listed, not in other schemes</td>
+                        <td className="px-4 py-4">Same as PM-JAY plus wider coverage in UK</td>
+                        <td className="px-4 py-4">Online via SHA site or offline via CSC/Aarogya Kendra</td>
+                    </tr>
+                    <tr className="hover:bg-gray-800/60">
+                        <td className="px-4 py-4 font-medium text-white">Empanelled Hospitals</td>
+                        <td className="px-4 py-4">Ongoing</td>
+                        <td className="px-4 py-4">All eligible cardholders</td>
+                        <td className="px-4 py-4">Free treatment in empanelled hospitals</td>
+                        <td className="px-4 py-4">Identify vicinal hospital; show card, ID</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+      </div>
+      
+      <div className="border-t border-gray-700 pt-4 mt-4">
+        <div className="bg-blue-900/30 border border-blue-500/50 text-blue-300 p-4 rounded-lg text-sm flex items-center">
+            <InfoIcon />
+            <p className="ml-3"><strong>Verification Info:</strong> For awareness materials, always show official scheme names and launch dates for authenticity.</p>
+        </div>
+      </div>
+
       <div className="border-t border-gray-700 pt-4 mt-4">
         <h3 className="text-xl font-semibold text-white mb-2">Janani Shishu Suraksha Karyakram (JSSK)</h3>
         <p>Entitles all pregnant women delivering in public health institutions to absolutely free and no-expense delivery, including Caesarean section.</p>
       </div>
+
     </InfoCard>
   </main>
 );
