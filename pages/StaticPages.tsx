@@ -1043,9 +1043,21 @@ export const SchemesPage: React.FC = () => (
           <li><strong>Photographs:</strong> A recent passport-size photo may be required at some CSCs.</li>
         </ul>
 
-        <h4 className="text-lg font-semibold text-gray-200 pt-2">3. How to Apply:</h4>
+        <h4 className="text-lg font-semibold text-gray-200 pt-2">3. How to Verify Eligibility &amp; Apply:</h4>
         <ul className="list-disc list-inside text-gray-400 pl-4 text-sm space-y-1">
-          <li>Visit a Common Service Center (CSC) or a PM-JAY helpdesk at an empanelled hospital to verify your eligibility and get your card issued.</li>
+          <li>
+            Check your eligibility and apply for the Ayushman Card online through the official beneficiary portal:
+            <a href="https://beneficiary.nha.gov.in/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline ml-1 font-semibold inline-flex items-center">
+              beneficiary.nha.gov.in <ExternalLinkIcon />
+            </a>
+          </li>
+          <li>
+            For detailed information about the scheme, visit the official PM-JAY website:
+            <a href="https://nha.gov.in/PM-JAY" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline ml-1 font-semibold inline-flex items-center">
+              nha.gov.in/PM-JAY <ExternalLinkIcon />
+            </a>
+          </li>
+          <li>Alternatively, visit a Common Service Center (CSC) or a PM-JAY helpdesk at an empanelled hospital to get your card issued.</li>
         </ul>
       </div>
 
