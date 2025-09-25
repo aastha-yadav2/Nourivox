@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { useAppContext } from '../hooks/useAppContext';
-import { UserIcon, AiIcon, SendIcon, PaperClipIcon, MicrophoneIcon, SpeakerOnIcon, SpeakerOffIcon, MenuIcon, NewChatIcon, TrashIcon, languages } from '../constants';
+import { UserIcon, AiIcon, SendIcon, PaperClipIcon, MicrophoneIcon, SpeakerOnIcon, SpeakerOffIcon, MenuIcon, NewChatIcon, TrashIcon, languages, SettingsIcon } from '../constants';
 import type { Message, LanguageCode, ChatSession } from '../types';
+import SettingsModal from './SettingsModal';
 
 // Fix: Add type definitions for Web Speech API to resolve TypeScript errors.
 interface SpeechRecognitionResult {
@@ -53,17 +54,17 @@ declare global {
 }
 
 export const Chatbot: React.FC = () => {
-  const { language, setLanguage, t } = useAppContext();
+  const { language, setLanguage, t, isSpeechEnabled, setIsSpeechEnabled } = useAppContext();
   const [input, setInput] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -122,7 +123,7 @@ export const Chatbot: React.FC = () => {
       messages: [],
       timestamp: new Date().toISOString()
     };
-    setChatHistory(prev => [newSession, ...prev]);
+    setChatHistory(prev => [newSession, ...prev.filter(s => s.messages.length > 0)]);
     setCurrentSessionId(newSession.id);
   };
   
@@ -144,6 +145,20 @@ export const Chatbot: React.FC = () => {
     }
     if (updatedHistory.length === 0) {
         localStorage.removeItem('nourivoxChatHistory');
+    }
+  };
+
+  const handleClearAllHistory = () => {
+    if (window.confirm(`${t('confirm_clear_history_title')}\n\n${t('confirm_clear_history_desc')}`)) {
+        localStorage.removeItem('nourivoxChatHistory');
+        const newSession: ChatSession = {
+            id: Date.now().toString(),
+            title: t('new_chat'),
+            messages: [],
+            timestamp: new Date().toISOString()
+        };
+        setChatHistory([newSession]);
+        setCurrentSessionId(newSession.id);
     }
   };
 
@@ -211,7 +226,7 @@ export const Chatbot: React.FC = () => {
     
     const updatedHistoryWithUserMsg = chatHistory.map(session => {
         if (session.id === currentSessionId) {
-            const newTitle = isFirstMessage 
+            const newTitle = isFirstMessage && messageText.trim()
                 ? messageText.substring(0, 40) + (messageText.length > 40 ? '...' : '') 
                 : session.title;
             return {
@@ -305,78 +320,87 @@ export const Chatbot: React.FC = () => {
   const currentMessages = chatHistory.find(s => s.id === currentSessionId)?.messages || [];
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] bg-white rounded-lg shadow-xl overflow-hidden">
-        {/* History Panel */}
-        <div className={`
-            absolute md:relative z-20 md:z-auto
-            h-full w-72 bg-gray-100 border-r border-gray-200 
-            transition-transform duration-300 ease-in-out
-            ${isHistoryPanelOpen ? 'translate-x-0' : '-translate-x-full'}
-            md:translate-x-0
-            flex flex-col
-        `}>
-            <div className="p-4 border-b flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-800">{t('chat_history')}</h2>
-                <button onClick={startNewChat} className="p-2 text-gray-600 hover:text-teal-600">
-                    <NewChatIcon />
-                </button>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-                {chatHistory.map(session => (
-                    <div 
-                        key={session.id} 
-                        onClick={() => selectChat(session.id)}
-                        className={`p-3 m-2 rounded-lg cursor-pointer group flex justify-between items-center ${currentSessionId === session.id ? 'bg-teal-100' : 'hover:bg-gray-200'}`}
-                    >
-                        <p className="text-sm text-gray-700 truncate flex-1 pr-2">{session.title}</p>
-                        <button onClick={(e) => deleteChat(e, session.id)} className="p-1 text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <TrashIcon />
-                        </button>
-                    </div>
-                ))}
-            </div>
-        </div>
+    <>
+      <div className="flex h-[calc(100vh-8rem)] bg-white rounded-lg shadow-xl overflow-hidden">
+          {/* History Panel */}
+          <div className={`
+              absolute md:relative z-20 md:z-auto
+              h-full w-72 bg-gray-100 border-r border-gray-200 
+              transition-transform duration-300 ease-in-out
+              ${isHistoryPanelOpen ? 'translate-x-0' : '-translate-x-full'}
+              md:translate-x-0
+              flex flex-col
+          `}>
+              <div className="p-4 border-b flex justify-between items-center">
+                  <h2 className="text-lg font-semibold text-gray-800">{t('chat_history')}</h2>
+                  <button onClick={startNewChat} className="p-2 text-gray-600 hover:text-teal-600">
+                      <NewChatIcon />
+                  </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                  {chatHistory.map(session => (
+                      <div 
+                          key={session.id} 
+                          onClick={() => selectChat(session.id)}
+                          className={`p-3 m-2 rounded-lg cursor-pointer group flex justify-between items-center ${currentSessionId === session.id ? 'bg-teal-100' : 'hover:bg-gray-200'}`}
+                      >
+                          <p className="text-sm text-gray-700 truncate flex-1 pr-2">{session.title}</p>
+                          <button onClick={(e) => deleteChat(e, session.id)} className="p-1 text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <TrashIcon />
+                          </button>
+                      </div>
+                  ))}
+              </div>
+          </div>
 
-        {/* Main Chat Panel */}
-        <div className="flex-1 flex flex-col bg-white">
-            <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
-                <div className="flex items-center">
-                    <button onClick={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)} className="p-2 mr-2 text-gray-600 hover:text-teal-600 md:hidden">
-                        <MenuIcon />
-                    </button>
-                    <h2 className="text-lg font-semibold text-gray-800">Nourivox AI Assistant</h2>
-                </div>
-                <button onClick={() => setIsSpeechEnabled(!isSpeechEnabled)} className="p-2 text-gray-500 hover:text-teal-600 rounded-full" aria-label={isSpeechEnabled ? "Disable TTS" : "Enable TTS"}>
-                    {isSpeechEnabled ? <SpeakerOnIcon /> : <SpeakerOffIcon />}
-                </button>
-            </div>
-            <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-                {currentMessages.map((msg, index) => (
-                    <div key={index} className={`flex items-start gap-4 ${msg.sender === 'user' ? 'justify-end' : ''}`}>
-                        {msg.sender === 'ai' && <AiIcon />}
-                        <div className={`rounded-lg px-4 py-3 max-w-lg ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'}`}>
-                            {msg.image && <img src={msg.image} alt="User upload" className="rounded-lg mb-2 w-full object-cover max-h-80" />}
-                            <p className="whitespace-pre-wrap">{msg.text}</p>
-                        </div>
-                        {msg.sender === 'user' && <UserIcon />}
-                    </div>
-                ))}
-                {isLoading && (
-                    <div className="flex items-start gap-4"><AiIcon /><div className="rounded-lg px-4 py-3 max-w-lg bg-gray-100 text-gray-800"><div className="flex items-center space-x-2"><div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div><div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse [animation-delay:0.2s]"></div><div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse [animation-delay:0.4s]"></div></div></div></div>
-                )}
-                <div ref={chatEndRef} />
-            </div>
-            <div className="p-4 bg-gray-50 border-t">
-                {imagePreview && (<div className="relative inline-block mb-2"><img src={imagePreview} alt="Preview" className="h-20 w-20 object-cover rounded-md" /><button onClick={() => { setImageFile(null); setImagePreview(null); }} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs">&times;</button></div>)}
-                <div className="flex items-center bg-white rounded-full border shadow-sm pr-2">
-                    <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' ? handleSendMessage() : null} placeholder={isListening ? 'Listening...' : t('chatbot_placeholder')} className="flex-1 p-4 bg-transparent focus:outline-none text-gray-800" disabled={isLoading} />
-                    <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
-                    <button onClick={() => fileInputRef.current?.click()} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading || isListening}><PaperClipIcon /></button>
-                    <button onClick={handleToggleListening} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading}><MicrophoneIcon isListening={isListening} /></button>
-                    <button onClick={() => handleSendMessage()} className="p-3 bg-teal-500 text-white rounded-full hover:bg-teal-600 disabled:bg-gray-300" disabled={isLoading || (!input.trim() && !imageFile)}><SendIcon /></button>
-                </div>
-            </div>
-        </div>
-    </div>
+          {/* Main Chat Panel */}
+          <div className="flex-1 flex flex-col bg-white">
+              <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
+                  <div className="flex items-center">
+                      <button onClick={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)} className="p-2 mr-2 text-gray-600 hover:text-teal-600 md:hidden">
+                          <MenuIcon />
+                      </button>
+                      <h2 className="text-lg font-semibold text-gray-800">Nourivox AI Assistant</h2>
+                  </div>
+                  <button onClick={() => setIsSpeechEnabled(!isSpeechEnabled)} className="p-2 text-gray-500 hover:text-teal-600 rounded-full" aria-label={isSpeechEnabled ? "Disable TTS" : "Enable TTS"}>
+                      {isSpeechEnabled ? <SpeakerOnIcon /> : <SpeakerOffIcon />}
+                  </button>
+              </div>
+              <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+                  {currentMessages.map((msg, index) => (
+                      <div key={index} className={`flex items-start gap-4 ${msg.sender === 'user' ? 'justify-end' : ''}`}>
+                          {msg.sender === 'ai' && <AiIcon />}
+                          <div className={`rounded-lg px-4 py-3 max-w-lg ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'}`}>
+                              {msg.image && <img src={msg.image} alt="User upload" className="rounded-lg mb-2 w-full object-cover max-h-80" />}
+                              <p className="whitespace-pre-wrap">{msg.text}</p>
+                          </div>
+                          {msg.sender === 'user' && <UserIcon />}
+                      </div>
+                  ))}
+                  {isLoading && (
+                      <div className="flex items-start gap-4"><AiIcon /><div className="rounded-lg px-4 py-3 max-w-lg bg-gray-100 text-gray-800"><div className="flex items-center space-x-2"><div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div><div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse [animation-delay:0.2s]"></div><div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse [animation-delay:0.4s]"></div></div></div></div>
+                  )}
+                  <div ref={chatEndRef} />
+              </div>
+              <div className="p-4 bg-gray-50 border-t">
+                  {imagePreview && (<div className="relative inline-block mb-2"><img src={imagePreview} alt="Preview" className="h-20 w-20 object-cover rounded-md" /><button onClick={() => { setImageFile(null); setImagePreview(null); }} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs">&times;</button></div>)}
+                  <div className="flex items-center bg-white rounded-full border shadow-sm pr-2">
+                      <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' ? handleSendMessage() : null} placeholder={isListening ? 'Listening...' : t('chatbot_placeholder')} className="flex-1 p-4 bg-transparent focus:outline-none text-gray-800" disabled={isLoading} />
+                      <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
+                      <button onClick={() => fileInputRef.current?.click()} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading || isListening}><PaperClipIcon /></button>
+                      <button onClick={() => setIsSettingsOpen(true)} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading}><SettingsIcon /></button>
+                      <button onClick={handleToggleListening} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading}><MicrophoneIcon isListening={isListening} /></button>
+                      <button onClick={() => handleSendMessage()} className="p-3 bg-teal-500 text-white rounded-full hover:bg-teal-600 disabled:bg-gray-300" disabled={isLoading || (!input.trim() && !imageFile)}><SendIcon /></button>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <SettingsModal 
+          isOpen={isSettingsOpen} 
+          onClose={() => setIsSettingsOpen(false)} 
+          toggleHistoryPanel={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)}
+          clearAllHistory={handleClearAllHistory}
+      />
+    </>
   );
 };

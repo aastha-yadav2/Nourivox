@@ -20,6 +20,8 @@ interface AppContextType {
   isEmergencyModalOpen: boolean;
   openEmergencyModal: () => void;
   closeEmergencyModal: () => void;
+  isSpeechEnabled: boolean;
+  setIsSpeechEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -29,6 +31,7 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authModal, setAuthModal] = useState<AuthModalState>({ isOpen: false, mode: 'login' });
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
+  const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
 
   const login = () => setIsAuthenticated(true);
   const logout = () => setIsAuthenticated(false);
@@ -55,7 +58,9 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
         closeAuthModal,
         isEmergencyModalOpen,
         openEmergencyModal,
-        closeEmergencyModal
+        closeEmergencyModal,
+        isSpeechEnabled,
+        setIsSpeechEnabled,
       }}
     >
       {children}
