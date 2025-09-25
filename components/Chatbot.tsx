@@ -446,14 +446,13 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
       <div className="flex h-[calc(100vh-8rem)] bg-white rounded-lg shadow-xl overflow-hidden">
           {/* History Panel */}
           <div className={`
-              absolute md:relative z-20 md:z-auto
-              h-full w-72 bg-gray-100 border-r border-gray-200 
-              transition-transform duration-300 ease-in-out
-              ${isHistoryPanelOpen ? 'translate-x-0' : '-translate-x-full'}
-              md:translate-x-0
-              flex flex-col
+              h-full bg-gray-100 border-r border-gray-200 
+              transition-all duration-300 ease-in-out
+              flex flex-col flex-shrink-0
+              ${isHistoryPanelOpen ? 'w-72' : 'w-0'}
+              overflow-hidden
           `}>
-              <div className="p-4 border-b flex justify-between items-center">
+              <div className="p-4 border-b flex justify-between items-center flex-shrink-0 whitespace-nowrap">
                   <h2 className="text-lg font-semibold text-gray-800">{t('chat_history')}</h2>
                   <button onClick={startNewChat} className="p-2 text-gray-600 hover:text-teal-600">
                       <NewChatIcon />
@@ -464,7 +463,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
                       <div 
                           key={session.id} 
                           onClick={() => selectChat(session.id)}
-                          className={`p-3 m-2 rounded-lg cursor-pointer group flex justify-between items-center ${currentSessionId === session.id ? 'bg-teal-100' : 'hover:bg-gray-200'}`}
+                          className={`p-3 m-2 rounded-lg cursor-pointer group flex justify-between items-center whitespace-nowrap ${currentSessionId === session.id ? 'bg-teal-100' : 'hover:bg-gray-200'}`}
                       >
                           <p className="text-sm text-gray-700 truncate flex-1 pr-2">{session.title}</p>
                           <button onClick={(e) => deleteChat(e, session.id)} className="p-1 text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -476,7 +475,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
           </div>
 
           {/* Main Chat Panel */}
-          <div className="flex-1 flex flex-col bg-white">
+          <div className="flex-1 flex flex-col bg-white min-w-0">
               <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
                   <div className="flex items-center">
                       <button onClick={onBack} className="p-2 mr-2 text-gray-600 hover:text-teal-600" aria-label="Back to home">
@@ -488,7 +487,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
                     <button onClick={() => setIsSpeechEnabled(!isSpeechEnabled)} className="p-2 text-gray-500 hover:text-teal-600 rounded-full" aria-label={isSpeechEnabled ? "Disable TTS" : "Enable TTS"}>
                         {isSpeechEnabled ? <SpeakerOnIcon /> : <SpeakerOffIcon />}
                     </button>
-                     <button onClick={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)} className="p-2 text-gray-600 hover:text-teal-600 md:hidden">
+                     <button onClick={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)} className="p-2 text-gray-600 hover:text-teal-600">
                           <MenuIcon />
                       </button>
                   </div>
