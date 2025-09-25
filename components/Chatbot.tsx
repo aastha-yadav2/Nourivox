@@ -443,11 +443,18 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
               <div className="p-4 bg-gray-50 border-t">
                   {imagePreview && (<div className="relative inline-block mb-2"><img src={imagePreview} alt="Preview" className="h-20 w-20 object-cover rounded-md" /><button onClick={() => { setImageFile(null); setImagePreview(null); }} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs">&times;</button></div>)}
                   <div className="flex items-center bg-white rounded-full border shadow-sm pr-2">
-                      <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' ? handleSendMessage() : null} placeholder={isListening ? 'Listening...' : t('chatbot_placeholder')} className="flex-1 p-4 bg-transparent focus:outline-none text-gray-800" disabled={isLoading} />
+                      <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' ? handleSendMessage() : null} placeholder={isListening ? t('listening') : t('chatbot_placeholder')} className="flex-1 p-4 bg-transparent focus:outline-none text-gray-800" disabled={isLoading} />
                       <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
                       <button onClick={() => fileInputRef.current?.click()} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading || isListening}><PaperClipIcon /></button>
                       <button onClick={() => setIsSettingsOpen(true)} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading}><SettingsIcon /></button>
-                      <button onClick={handleToggleListening} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading}><MicrophoneIcon isListening={isListening} /></button>
+                      <button 
+                        onClick={handleToggleListening} 
+                        className={`p-2 text-gray-500 hover:text-teal-600 rounded-full transition-colors duration-300 ${isListening ? 'bg-red-500/20 animate-listening-glow' : ''}`} 
+                        disabled={isLoading}
+                        aria-label={isListening ? "Stop listening" : "Start listening"}
+                      >
+                        <MicrophoneIcon isListening={isListening} />
+                      </button>
                       <button onClick={() => handleSendMessage()} className="p-3 bg-teal-500 text-white rounded-full hover:bg-teal-600 disabled:bg-gray-300" disabled={isLoading || (!input.trim() && !imageFile)}><SendIcon /></button>
                   </div>
               </div>
