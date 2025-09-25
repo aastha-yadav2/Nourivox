@@ -518,11 +518,11 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
                       <button onClick={() => setIsSettingsOpen(true)} className="p-2 text-gray-500 hover:text-teal-600" disabled={isLoading}><SettingsIcon /></button>
                       <button 
                         onClick={handleToggleListening} 
-                        className={`p-2 text-gray-500 hover:text-teal-600 rounded-full transition-colors duration-300 ${isListening ? 'bg-red-500/20 animate-listening-glow' : ''}`} 
+                        className={`p-2 rounded-full transition-colors duration-300 ${isListening ? 'bg-red-500/20 animate-listening-glow text-red-500' : 'text-gray-500 hover:text-teal-600'}`} 
                         disabled={isLoading}
                         aria-label={isListening ? "Stop listening" : "Start listening"}
                       >
-                        <MicrophoneIcon isListening={isListening} />
+                        <MicrophoneIcon />
                       </button>
                       <button onClick={() => handleSendMessage()} className="p-3 bg-teal-500 text-white rounded-full hover:bg-teal-600 disabled:bg-gray-300" disabled={isLoading || (!input.trim() && !imageFile)}><SendIcon /></button>
                   </div>
