@@ -5,6 +5,7 @@ import { useAppContext } from '../hooks/useAppContext';
 import { Logo, HeroRobot, SmartAiChatIcon, DoctorConnectIcon, PersonalizedCareIcon, SecurePrivateIcon } from '../constants';
 import { NavLink } from 'react-router-dom';
 import { RevolutionizingSection } from './StaticPages';
+import TrendingArticles from '../components/TrendingArticles';
 
 const FeaturesSection = () => {
     const { t } = useAppContext();
@@ -133,6 +134,7 @@ const LandingPage = ({ onStartJourney }: { onStartJourney: () => void }) => {
         <FeaturesSection />
         <CtaSection onStartJourney={onStartJourney} />
         <RevolutionizingSection />
+        <TrendingArticles />
 
       </div>
     </div>
