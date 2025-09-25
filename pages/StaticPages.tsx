@@ -240,7 +240,8 @@ export const DoctorsPage: React.FC = () => {
         "name": "Dr. Sumita Prabhakar",
         "specialty": "Obstetrics & Gynaecology",
         "city": "Dehradun",
-        "state": "Uttarakhand"
+        "state": "Uttarakhand",
+        "youtube": "https://youtube.com/@sumitaprabhakar?si=tLgx324Ml-Diswg9"
       },
       {
         "name": "Dr. Neerja Bhatla",
