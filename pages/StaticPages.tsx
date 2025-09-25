@@ -5,7 +5,7 @@ import {
     InfoIcon, PhoneIcon, BookmarkIcon, CopyIcon, ExternalLinkIcon, AdvancedAITechnologyIcon, 
     OurAimIcon, ScopeIcon, CalendarIcon, PrescriptionIcon, OtcIcon, WellnessIcon, FindPharmacyIcon, LocationIcon,
     UploadCloudIcon, CloseIcon, CheckCircleIcon, XCircleIcon, QuestionMarkCircleIcon, AlertIcon, FirstAidIcon, FitnessIcon, DietIcon,
-    GeneralPhysicianIcon, DermatologistIcon, PsychiatristIcon, PediatricianIcon
+    GeneralPhysicianIcon, DermatologistIcon, PsychiatristIcon, PediatricianIcon, ObstetricianGynecologistIcon, YouTubeIcon
 } from '../constants';
 import { useAppContext } from '../hooks/useAppContext';
 import type { PrescriptionAnalysisResult, AnalysisHistoryItem, SymptomAnalysisResult, PharmacyInfo, Appointment, Reminder } from '../types';
@@ -124,6 +124,12 @@ export const ConsultationPage: React.FC = () => {
             description: t('pediatrician_desc'),
             color: 'bg-rose-500/20 text-rose-400',
         },
+        {
+            icon: <ObstetricianGynecologistIcon />,
+            title: t('obstetrician_gynecologist'),
+            description: t('obstetrician_gynecologist_desc'),
+            color: 'bg-pink-500/20 text-pink-400',
+        },
     ];
     
     const handleBookNow = () => {
@@ -140,7 +146,7 @@ export const ConsultationPage: React.FC = () => {
                 <h1 className="text-4xl font-bold text-white mb-4">{t('consultation_title')}</h1>
                 <p className="text-lg text-gray-400 max-w-2xl mx-auto">{t('consultation_subtitle')}</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {consultationTypes.map((consultation, index) => (
                     <div key={index} className="bg-gray-800/50 p-6 rounded-xl border border-gray-700 text-center flex flex-col items-center shadow-lg hover:border-teal-500/50 transition-all duration-300">
                         <div className={`w-16 h-16 rounded-full flex items-center justify-center ${consultation.color} mb-6`}>
@@ -210,6 +216,37 @@ export const DoctorsPage: React.FC = () => {
         "specialty": "Dermatology, Venereology and Leprosy",
         "city": "Dehradun",
         "state": "Uttarakhand"
+      },
+      {
+        "name": "Dr. Astha Agrawal",
+        "specialty": "Pediatrics",
+        "city": "Dehradun",
+        "state": "Uttarakhand",
+        "youtube": "https://www.youtube.com/@asthaagrawal05"
+      },
+      {
+        "name": "Dr. Shruti Kumar",
+        "specialty": "Pediatrics",
+        "city": "Dehradun",
+        "state": "Uttarakhand"
+      },
+      {
+        "name": "Dr. Madhusudan Garg",
+        "specialty": "Pediatrics",
+        "city": "Dehradun",
+        "state": "Uttarakhand"
+      },
+      {
+        "name": "Dr. Sumita Prabhakar",
+        "specialty": "Obstetrics & Gynaecology",
+        "city": "Dehradun",
+        "state": "Uttarakhand"
+      },
+      {
+        "name": "Dr. Neerja Bhatla",
+        "specialty": "Obstetrics & Gynaecology",
+        "city": "New Delhi",
+        "state": "Delhi"
       }
     ];
 
@@ -221,19 +258,29 @@ export const DoctorsPage: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {doctors.map((doctor, index) => (
-                    <div key={index} className="bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-lg hover:border-teal-500/80 hover:shadow-teal-900/40 transition-all duration-300 transform hover:-translate-y-1">
-                        <div className="flex items-center mb-4">
-                            <div className="w-16 h-16 rounded-full bg-teal-900/50 flex items-center justify-center text-teal-400 font-bold text-2xl mr-4 border-2 border-teal-500/30">
-                                {doctor.name.split(' ').map(n => n[0]).join('')}
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-bold text-white">{doctor.name}</h3>
-                                <p className="text-teal-400">{doctor.specialty}</p>
+                    <div key={index} className="bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-lg hover:border-teal-500/80 hover:shadow-teal-900/40 transition-all duration-300 transform hover:-translate-y-1 flex flex-col">
+                        <div className="flex-grow">
+                            <div className="flex items-center mb-4">
+                                <div className="w-16 h-16 rounded-full bg-teal-900/50 flex items-center justify-center text-teal-400 font-bold text-2xl mr-4 border-2 border-teal-500/30">
+                                    {doctor.name.split(' ').map(n => n[0]).join('')}
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-white">{doctor.name}</h3>
+                                    <p className="text-teal-400">{doctor.specialty}</p>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex items-center text-gray-400 border-t border-gray-700 pt-4 mt-4">
-                            <LocationIcon />
-                            <span className="ml-2">{doctor.city}, {doctor.state}</span>
+                        <div className="border-t border-gray-700 pt-4 mt-4 space-y-4">
+                            <div className="flex items-center text-gray-400">
+                                <LocationIcon />
+                                <span className="ml-2">{doctor.city}, {doctor.state}</span>
+                            </div>
+                            {doctor.youtube && (
+                                <a href={doctor.youtube} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full px-4 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 transition-colors">
+                                    <YouTubeIcon />
+                                    <span className="ml-2">View on YouTube</span>
+                                </a>
+                            )}
                         </div>
                     </div>
                 ))}
