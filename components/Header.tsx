@@ -86,6 +86,7 @@ const Header: React.FC = () => {
             </NavDropdown>
             <NavDropdown title={t('resources')}>
                  <NavLink to="/about" className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-cyan-400"> {t('about')} </NavLink>
+                 <NavLink to="/consultation" className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-cyan-400">{t('consultation')}</NavLink>
                  <NavLink to="/vaccines" className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-cyan-400"> {t('vaccines')} </NavLink>
                  <NavLink to="/schemes" className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-cyan-400"> {t('schemes')} </NavLink>
             </NavDropdown>
@@ -138,6 +139,7 @@ const Header: React.FC = () => {
             <NavLink to="/pharmacy" onClick={closeMobileMenu} className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 ml-2">{t('pharmacy')}</NavLink>
             <h3 className="px-3 py-2 text-xs font-bold text-gray-500 uppercase">{t('resources')}</h3>
             <NavLink to="/about" onClick={closeMobileMenu} className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 ml-2">{t('about')}</NavLink>
+            <NavLink to="/consultation" onClick={closeMobileMenu} className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 ml-2">{t('consultation')}</NavLink>
             <NavLink to="/vaccines" onClick={closeMobileMenu} className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 ml-2">{t('vaccines')}</NavLink>
             <NavLink to="/schemes" onClick={closeMobileMenu} className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 ml-2">{t('schemes')}</NavLink>
              <div className="border-t border-gray-700 mt-2 pt-2">

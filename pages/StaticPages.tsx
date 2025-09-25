@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
+import { useNavigate } from 'react-router-dom';
 import { 
     InfoIcon, PhoneIcon, BookmarkIcon, CopyIcon, ExternalLinkIcon, AdvancedAITechnologyIcon, 
     OurAimIcon, ScopeIcon, CalendarIcon, PrescriptionIcon, OtcIcon, WellnessIcon, FindPharmacyIcon, LocationIcon,
-    UploadCloudIcon, CloseIcon, CheckCircleIcon, XCircleIcon, QuestionMarkCircleIcon, AlertIcon, FirstAidIcon, FitnessIcon, DietIcon
+    UploadCloudIcon, CloseIcon, CheckCircleIcon, XCircleIcon, QuestionMarkCircleIcon, AlertIcon, FirstAidIcon, FitnessIcon, DietIcon,
+    GeneralPhysicianIcon, DermatologistIcon, PsychiatristIcon, PediatricianIcon
 } from '../constants';
 import { useAppContext } from '../hooks/useAppContext';
 import type { PrescriptionAnalysisResult, AnalysisHistoryItem, SymptomAnalysisResult, PharmacyInfo, Appointment, Reminder } from '../types';
@@ -92,6 +94,72 @@ export const AboutPage: React.FC = () => (
     <RevolutionizingSection />
   </main>
 );
+
+export const ConsultationPage: React.FC = () => {
+    const { t, isAuthenticated, openLoginModal } = useAppContext();
+    const navigate = useNavigate();
+
+    const consultationTypes = [
+        {
+            icon: <GeneralPhysicianIcon />,
+            title: t('general_physician'),
+            description: t('general_physician_desc'),
+            color: 'bg-blue-500/20 text-blue-400',
+        },
+        {
+            icon: <DermatologistIcon />,
+            title: t('dermatologist'),
+            description: t('dermatologist_desc'),
+            color: 'bg-indigo-500/20 text-indigo-400',
+        },
+        {
+            icon: <PsychiatristIcon />,
+            title: t('psychiatrist'),
+            description: t('psychiatrist_desc'),
+            color: 'bg-emerald-500/20 text-emerald-400',
+        },
+        {
+            icon: <PediatricianIcon />,
+            title: t('pediatrician'),
+            description: t('pediatrician_desc'),
+            color: 'bg-rose-500/20 text-rose-400',
+        },
+    ];
+    
+    const handleBookNow = () => {
+        if (isAuthenticated) {
+            navigate('/dashboard');
+        } else {
+            openLoginModal();
+        }
+    };
+
+    return (
+        <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+            <div className="text-center mb-12">
+                <h1 className="text-4xl font-bold text-white mb-4">{t('consultation_title')}</h1>
+                <p className="text-lg text-gray-400 max-w-2xl mx-auto">{t('consultation_subtitle')}</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {consultationTypes.map((consultation, index) => (
+                    <div key={index} className="bg-gray-800/50 p-6 rounded-xl border border-gray-700 text-center flex flex-col items-center shadow-lg hover:border-teal-500/50 transition-all duration-300">
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center ${consultation.color} mb-6`}>
+                            {consultation.icon}
+                        </div>
+                        <h3 className="text-xl font-semibold text-white mb-2">{consultation.title}</h3>
+                        <p className="text-gray-400 text-sm flex-grow mb-6">{consultation.description}</p>
+                        <button 
+                            onClick={handleBookNow}
+                            className="mt-auto w-full px-6 py-2 font-semibold rounded-lg bg-teal-600 hover:bg-teal-700 transition-colors text-white"
+                        >
+                            {t('book_now')}
+                        </button>
+                    </div>
+                ))}
+            </div>
+        </main>
+    );
+};
 
 export const DoctorsPage: React.FC = () => {
     const doctors = [
