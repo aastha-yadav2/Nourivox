@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../hooks/useAppContext';
-import { UserIcon, AiIcon, SendIcon, PaperClipIcon, MicrophoneIcon, SpeakerOnIcon, SpeakerOffIcon, MenuIcon, NewChatIcon, TrashIcon, languages, SettingsIcon } from '../constants';
+import { UserIcon, AiIcon, SendIcon, PaperClipIcon, MicrophoneIcon, SpeakerOnIcon, SpeakerOffIcon, MenuIcon, NewChatIcon, TrashIcon, languages, SettingsIcon, ArrowLeftIcon } from '../constants';
 import type { Message, LanguageCode, ChatSession } from '../types';
 import SettingsModal from './SettingsModal';
 
@@ -54,7 +54,11 @@ declare global {
   }
 }
 
-export const Chatbot: React.FC = () => {
+interface ChatbotProps {
+  onBack: () => void;
+}
+
+export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
   const { language, setLanguage, t, isSpeechEnabled, setIsSpeechEnabled } = useAppContext();
   const navigate = useNavigate();
   const [input, setInput] = useState('');
@@ -406,14 +410,19 @@ export const Chatbot: React.FC = () => {
           <div className="flex-1 flex flex-col bg-white">
               <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
                   <div className="flex items-center">
-                      <button onClick={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)} className="p-2 mr-2 text-gray-600 hover:text-teal-600 md:hidden">
-                          <MenuIcon />
+                      <button onClick={onBack} className="p-2 mr-2 text-gray-600 hover:text-teal-600" aria-label="Back to home">
+                          <ArrowLeftIcon />
                       </button>
                       <h2 className="text-lg font-semibold text-gray-800">Nourivox AI Assistant</h2>
                   </div>
-                  <button onClick={() => setIsSpeechEnabled(!isSpeechEnabled)} className="p-2 text-gray-500 hover:text-teal-600 rounded-full" aria-label={isSpeechEnabled ? "Disable TTS" : "Enable TTS"}>
-                      {isSpeechEnabled ? <SpeakerOnIcon /> : <SpeakerOffIcon />}
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button onClick={() => setIsSpeechEnabled(!isSpeechEnabled)} className="p-2 text-gray-500 hover:text-teal-600 rounded-full" aria-label={isSpeechEnabled ? "Disable TTS" : "Enable TTS"}>
+                        {isSpeechEnabled ? <SpeakerOnIcon /> : <SpeakerOffIcon />}
+                    </button>
+                     <button onClick={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)} className="p-2 text-gray-600 hover:text-teal-600 md:hidden">
+                          <MenuIcon />
+                      </button>
+                  </div>
               </div>
               <div className="flex-1 p-6 space-y-6 overflow-y-auto">
                   {currentMessages.map((msg, index) => (
