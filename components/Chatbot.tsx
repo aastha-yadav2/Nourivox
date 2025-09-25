@@ -23,6 +23,7 @@ interface SpeechRecognitionResultList {
 }
 interface SpeechRecognitionEvent extends Event {
     results: SpeechRecognitionResultList;
+    resultIndex: number;
 }
 interface SpeechRecognitionErrorEvent extends Event {
     error: string;
@@ -360,8 +361,23 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onBack }) => {
 
     const instance = new SpeechRecognitionAPI();
     instance.continuous = false;
-    instance.interimResults = false;
-    instance.onresult = (event) => handleSpeechResult(event.results[0][0].transcript);
+    instance.interimResults = true; // Enable interim results for live feedback
+    
+    instance.onresult = (event: SpeechRecognitionEvent) => {
+        // Combine all results (interim and final) to get the current transcript
+        const transcript = Array.from(event.results)
+            .map(result => result[0].transcript)
+            .join('');
+
+        // Update the input field with the live transcript for immediate feedback
+        latestStateRef.current.setInput(transcript);
+
+        // Check if the speech recognition has finalized this segment
+        if (event.results[event.results.length - 1].isFinal) {
+            // Process the final, complete transcript
+            handleSpeechResult(transcript.trim());
+        }
+    };
     
     instance.onerror = (event: SpeechRecognitionErrorEvent) => {
       const { t, language, speakText, currentSessionId, setChatHistory } = latestStateRef.current;
