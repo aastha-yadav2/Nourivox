@@ -1,6 +1,6 @@
 # Nourivox Healthcare Assistant
 
-![Nourivox Logo](./src/assets/nourivox-logo.png)
+![Nourivox Logo](./src/assets/nourivox-logo(2).png)
 
 Nourivox is an AI-powered healthcare assistant designed to provide patients, doctors, and admins with seamless interaction. Users can chat with an AI assistant for general health advice, book appointments, get reminders, and connect with healthcare professionals. It also supports voice input and image uploads for disease identification.
 
