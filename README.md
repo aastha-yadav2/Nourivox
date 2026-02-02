@@ -71,6 +71,8 @@ git clone <your-repo-url>
 ## Navigate to the project folder:
 cd doc-ai-guide
 
+“Updated for collaboration badge”
+
 
 ## Project Structure
 
